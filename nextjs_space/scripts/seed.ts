@@ -17,10 +17,29 @@ async function main() {
       email: 'john@doe.com',
       password: hashedPassword,
       name: 'João Silva',
+      role: 'user',
+      isActive: true,
     },
   })
 
   console.log(`✅ Usuário de teste criado: ${testUser.email}`)
+
+  // Criar usuário admin de teste
+  const adminHashedPassword = await bcryptjs.hash('admin123', 12)
+  
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@orcamento.com' },
+    update: {},
+    create: {
+      email: 'admin@orcamento.com',
+      password: adminHashedPassword,
+      name: 'Administrador',
+      role: 'admin',
+      isActive: true,
+    },
+  })
+
+  console.log(`✅ Usuário admin criado: ${adminUser.email}`)
 
   // Categorias padrão para receitas (brasileiras)
   const incomeCategories = [
@@ -264,10 +283,14 @@ Seus dados financeiros de janeiro mostram uma **gestão equilibrada** das finan�
   console.log('✅ Análise de IA de exemplo criada')
   console.log('\n🎉 Seed concluído com sucesso!')
   console.log(`\n📋 Dados criados:`)
-  console.log(`   - Usuário: ${testUser.email}`)
+  console.log(`   - Usuário teste: ${testUser.email} (senha: johndoe123)`)
+  console.log(`   - Usuário admin: ${adminUser.email} (senha: admin123)`)
   console.log(`   - Categorias: ${incomeCategories.length + expenseCategories.length}`)
   console.log(`   - Transações: ${transactionsData.length}`)
   console.log(`   - Análises IA: 1`)
+  console.log(`\n👤 Para acessar o painel admin, faça login com:`)
+  console.log(`   Email: admin@orcamento.com`)
+  console.log(`   Senha: admin123`)
 }
 
 main()

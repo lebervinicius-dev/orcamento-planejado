@@ -14,7 +14,8 @@ import {
   LogOut, 
   User, 
   Menu, 
-  X 
+  X,
+  Shield
 } from 'lucide-react'
 
 export function DashboardNav() {
@@ -23,11 +24,14 @@ export function DashboardNav() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  const isAdmin = session?.user?.role === 'admin'
+
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Transações', href: '/dashboard/transactions', icon: Receipt },
     { name: 'Categorias', href: '/dashboard/categories', icon: Tags },
     { name: 'Análises IA', href: '/dashboard/analyses', icon: Brain },
+    ...(isAdmin ? [{ name: 'Admin', href: '/dashboard/admin', icon: Shield }] : []),
   ]
 
   const handleLogout = async () => {

@@ -44,6 +44,9 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?   // Para autenticação email/senha
+  role          String    @default("user") // "user" ou "admin"
+  isActive      Boolean   @default(true) // Controle de acesso
+  hotmartId     String?   @unique // ID da transação Hotmart para rastreamento
   accounts      Account[]
   sessions      Session[]
 
