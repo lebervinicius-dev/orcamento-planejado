@@ -44,6 +44,15 @@ export default function HomePage() {
               <span>Acessar Plataforma</span>
               <ArrowRight className="h-5 w-5" />
             </Link>
+            <a
+              href="https://hotmart.com/pt-br/marketplace/produtos/hagsxd-orcamento-planejado-cy0ex/Q102664604S"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary text-lg px-8 py-3 flex items-center justify-center space-x-2"
+            >
+              <span>Comprar Agora</span>
+              <DollarSign className="h-5 w-5" />
+            </a>
           </div>
         </div>
       </section>
