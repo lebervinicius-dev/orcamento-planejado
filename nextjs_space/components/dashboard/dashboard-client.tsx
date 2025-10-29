@@ -53,6 +53,20 @@ interface DashboardData {
 export function DashboardClient({ data }: { data: DashboardData }) {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Recarregar dados quando mês/ano mudar
+  const handleMonthYearChange = async (month: number, year: number) => {
+    setSelectedMonth(month)
+    setSelectedYear(year)
+    setIsLoading(true)
+    
+    // Recarregar a página com os novos parâmetros
+    const searchParams = new URLSearchParams()
+    searchParams.set('month', month.toString())
+    searchParams.set('year', year.toString())
+    window.location.href = `/dashboard?${searchParams.toString()}`
+  }
 
   // Cálculos do resumo financeiro
   const totalIncome = data.monthlyIncome?.reduce((sum, t) => sum + (t.amount || 0), 0) ?? 0
@@ -90,13 +104,52 @@ export function DashboardClient({ data }: { data: DashboardData }) {
     return acc
   }, [] as Array<{ name: string; value: number; color: string }>) || []
 
+  const months = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ]
+
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Dashboard Financeiro</h1>
-          <p className="text-[#737373]">Resumo das suas finanças de {data.currentMonth}</p>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-white mb-3">Dashboard Financeiro</h1>
+          
+          {/* Seletores de Mês e Ano */}
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="text-[#737373] text-sm font-medium">Período:</label>
+            <select
+              value={selectedMonth}
+              onChange={(e) => handleMonthYearChange(Number(e.target.value), selectedYear)}
+              disabled={isLoading}
+              className="input px-3 py-1 text-sm w-auto disabled:opacity-50"
+            >
+              {months.map((month, index) => (
+                <option key={index} value={index}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => handleMonthYearChange(selectedMonth, Number(e.target.value))}
+              disabled={isLoading}
+              className="input px-3 py-1 text-sm w-auto disabled:opacity-50"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            {isLoading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#00bf63]" />
+            )}
+          </div>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link href="/dashboard/transactions/new" className="btn-primary flex items-center space-x-2">

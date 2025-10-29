@@ -5,7 +5,11 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { month?: string; year?: string }
+}) {
   const session = await getServerSession(authOptions)
   
   if (!session?.user?.id) {
@@ -14,8 +18,8 @@ export default async function DashboardPage() {
 
   // Buscar dados do usuário
   const currentDate = new Date()
-  const currentMonth = currentDate.getMonth()
-  const currentYear = currentDate.getFullYear()
+  const currentMonth = searchParams.month ? parseInt(searchParams.month) : currentDate.getMonth()
+  const currentYear = searchParams.year ? parseInt(searchParams.year) : currentDate.getFullYear()
   const startOfMonth = new Date(currentYear, currentMonth, 1)
   const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59)
 
@@ -109,6 +113,7 @@ export default async function DashboardPage() {
   })
 
   // Transformar dados para o cliente
+  const selectedDate = new Date(currentYear, currentMonth, 1)
   const dashboardData = {
     monthlyIncome: monthlyIncome.map(transaction => ({
       ...transaction,
@@ -123,7 +128,7 @@ export default async function DashboardPage() {
       ...latestAnalysis,
       insights: JSON.parse(latestAnalysis.insights),
     } : null,
-    currentMonth: currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+    currentMonth: selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
   }
 
   return <DashboardClient data={dashboardData} />
