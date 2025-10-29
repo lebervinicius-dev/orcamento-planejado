@@ -1,36 +1,10 @@
 
 'use client'
 
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { DollarSign, TrendingUp, BarChart3, Brain, ArrowRight, Star } from 'lucide-react'
 
 export default function HomePage() {
-  const { data: session, status } = useSession() || {}
-  const router = useRouter()
-  const [isRedirecting, setIsRedirecting] = useState(false)
-
-  useEffect(() => {
-    if (status === 'authenticated' && session && !isRedirecting) {
-      setIsRedirecting(true)
-      // Usar replace em vez de push para evitar problemas de navegação
-      router.replace('/dashboard')
-    }
-  }, [status, session, router, isRedirecting])
-
-  if (status === 'loading' || (status === 'authenticated' && isRedirecting)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#00bf63] mx-auto mb-4"></div>
-          <p className="text-white">Carregando...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-[#0d0d0d] to-black">
       {/* Header */}

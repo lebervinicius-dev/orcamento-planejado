@@ -1,16 +1,10 @@
 
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { TrendingUp, TrendingDown, DollarSign, PieChart, LineChart, Brain, Plus, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-
-// Importação dinâmica dos gráficos para evitar problemas de hidratação
-const FinancialCharts = dynamic(() => import('./financial-charts'), { 
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center h-64 text-[#737373]">Carregando gráficos...</div>
-})
+import FinancialCharts from './financial-charts'
 
 interface Transaction {
   id: string
