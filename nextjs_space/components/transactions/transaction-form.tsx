@@ -32,6 +32,8 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showNewCategory, setShowNewCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
 
   const [formData, setFormData] = useState({
     amount: transaction?.amount?.toString() || '',
@@ -43,10 +45,51 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    
+    if (name === 'categoryId' && value === 'new') {
+      setShowNewCategory(true)
+      return
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
     }))
+  }
+
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) {
+      setError('Digite o nome da categoria')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newCategoryName,
+          type: formData.type,
+          color: formData.type === 'INCOME' ? '#00bf63' : '#dc3545',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao criar categoria')
+      }
+
+      // Atualizar o formData com a nova categoria
+      setFormData(prev => ({ ...prev, categoryId: data.id }))
+      setShowNewCategory(false)
+      setNewCategoryName('')
+      
+      // Recarregar a página para mostrar a nova categoria
+      router.refresh()
+    } catch (error: any) {
+      setError(error.message || 'Erro ao criar categoria')
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,12 +201,12 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
               id="amount"
               name="amount"
               type="number"
-              step="0.01"
+              step="any"
               min="0"
               value={formData.amount}
               onChange={handleChange}
               className="input pl-10"
-              placeholder="0,00"
+              placeholder="0.00"
               required
             />
           </div>
@@ -212,27 +255,66 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
           <label htmlFor="categoryId" className="block text-sm font-medium text-white mb-2">
             Categoria
           </label>
-          <div className="relative">
-            <Tag className="h-5 w-5 text-[#737373] absolute left-3 top-1/2 transform -translate-y-1/2" />
-            <select
-              id="categoryId"
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleChange}
-              className="input pl-10"
-              required
-            >
-              <option value="">Selecione uma categoria</option>
-              {filteredCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <p className="text-sm text-[#737373] mt-1">
-            Mostrando apenas categorias de {formData.type === 'INCOME' ? 'receitas' : 'despesas'}
-          </p>
+          
+          {!showNewCategory ? (
+            <>
+              <div className="relative">
+                <Tag className="h-5 w-5 text-[#737373] absolute left-3 top-1/2 transform -translate-y-1/2" />
+                <select
+                  id="categoryId"
+                  name="categoryId"
+                  value={formData.categoryId}
+                  onChange={handleChange}
+                  className="input pl-10"
+                  required
+                >
+                  <option value="">Selecione uma categoria</option>
+                  {filteredCategories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                  <option value="new">+ Nova Categoria</option>
+                </select>
+              </div>
+              <p className="text-sm text-[#737373] mt-1">
+                Mostrando apenas categorias de {formData.type === 'INCOME' ? 'receitas' : 'despesas'}
+              </p>
+            </>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Nome da nova categoria"
+                  className="input flex-1"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  className="btn-primary px-4"
+                >
+                  Criar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewCategory(false)
+                    setNewCategoryName('')
+                  }}
+                  className="btn-secondary px-4"
+                >
+                  Cancelar
+                </button>
+              </div>
+              <p className="text-sm text-[#737373]">
+                Digite o nome da nova categoria e clique em criar
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Botões */}

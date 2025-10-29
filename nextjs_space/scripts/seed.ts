@@ -41,30 +41,18 @@ async function main() {
 
   console.log(`✅ Usuário admin criado: ${adminUser.email}`)
 
-  // Categorias padrão para receitas (brasileiras)
+  // Categorias padrão para receitas (apenas 3)
   const incomeCategories = [
     { name: 'Salário', color: '#00bf63' },
-    { name: 'Freelancer', color: '#20c997' },
-    { name: 'Investimentos', color: '#6f42c1' },
-    { name: 'Vendas', color: '#fd7e14' },
-    { name: 'Aluguel Recebido', color: '#17a2b8' },
-    { name: 'Prêmios', color: '#e83e8c' },
-    { name: 'Outros', color: '#737373' },
+    { name: 'Bonificações', color: '#20c997' },
+    { name: 'Dividendos', color: '#6f42c1' },
   ]
 
-  // Categorias padrão para despesas (brasileiras)
+  // Categorias padrão para despesas (apenas 3)
   const expenseCategories = [
-    { name: 'Alimentação', color: '#dc3545' },
-    { name: 'Transporte', color: '#ffc107' },
     { name: 'Moradia', color: '#6c757d' },
-    { name: 'Saúde', color: '#28a745' },
-    { name: 'Educação', color: '#007bff' },
-    { name: 'Entretenimento', color: '#fd7e14' },
-    { name: 'Vestuário', color: '#e83e8c' },
-    { name: 'Utilidades', color: '#17a2b8' },
-    { name: 'Impostos', color: '#6f42c1' },
-    { name: 'Investimentos', color: '#20c997' },
-    { name: 'Outros', color: '#737373' },
+    { name: 'Mercado', color: '#dc3545' },
+    { name: 'Transporte', color: '#ffc107' },
   ]
 
   // Criar categorias de receita
@@ -114,8 +102,8 @@ async function main() {
     where: { userId: testUser.id, name: 'Salário', type: TransactionType.INCOME }
   })
 
-  const alimentacaoCategory = await prisma.category.findFirst({
-    where: { userId: testUser.id, name: 'Alimentação', type: TransactionType.EXPENSE }
+  const mercadoCategory = await prisma.category.findFirst({
+    where: { userId: testUser.id, name: 'Mercado', type: TransactionType.EXPENSE }
   })
 
   const transporteCategory = await prisma.category.findFirst({
@@ -166,10 +154,10 @@ async function main() {
     },
     {
       amount: 450,
-      description: 'Supermercado',
+      description: 'Compras do mercado',
       date: new Date(2025, 0, 3),
       type: TransactionType.EXPENSE,
-      categoryId: alimentacaoCategory?.id || '',
+      categoryId: mercadoCategory?.id || '',
       userId: testUser.id,
     },
     {
@@ -182,10 +170,10 @@ async function main() {
     },
     {
       amount: 89.90,
-      description: 'Restaurante',
+      description: 'Feira da semana',
       date: new Date(2025, 0, 8),
       type: TransactionType.EXPENSE,
-      categoryId: alimentacaoCategory?.id || '',
+      categoryId: mercadoCategory?.id || '',
       userId: testUser.id,
     },
 
@@ -200,10 +188,10 @@ async function main() {
     },
     {
       amount: 380,
-      description: 'Compras do mês',
+      description: 'Mercado mensal',
       date: new Date(2024, 11, 10),
       type: TransactionType.EXPENSE,
-      categoryId: alimentacaoCategory?.id || '',
+      categoryId: mercadoCategory?.id || '',
       userId: testUser.id,
     },
     {

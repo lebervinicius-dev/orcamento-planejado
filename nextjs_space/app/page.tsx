@@ -54,9 +54,10 @@ export default function HomePage() {
               <DollarSign className="h-5 w-5" />
             </a>
           </div>
-          <div className="mt-6">
+          <div className="mt-4">
+            <p className="text-[#b0b0b0] text-base mb-2">Assinatura mensal</p>
             <p className="text-[#737373] text-lg">
-              <span className="line-through">de R$ 29,90</span>{' '}
+              <span className="line-through">de R$ 34,90</span>{' '}
               <span className="text-[#00bf63] font-bold text-2xl">por R$ 19,90</span>
             </p>
           </div>
@@ -64,7 +65,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
+      <section className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-3xl font-bold text-white text-center mb-12">
           Tudo que você precisa para organizar suas finanças
         </h2>

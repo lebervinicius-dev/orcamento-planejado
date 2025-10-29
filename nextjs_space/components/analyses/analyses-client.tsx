@@ -166,35 +166,35 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                 {/* Métricas Resumidas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   {analysis.insights.totalIncome && (
-                    <div className="bg-[#00bf63]/5 p-3 rounded-lg">
-                      <p className="text-sm text-[#737373]">Receitas</p>
+                    <div className="bg-[#00bf63]/10 p-3 rounded-lg border border-[#00bf63]/20">
+                      <p className="text-sm text-[#b0b0b0]">Receitas</p>
                       <p className="text-lg font-bold text-[#00bf63]">
                         R$ {analysis.insights.totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                   )}
                   {analysis.insights.totalExpenses && (
-                    <div className="bg-red-50 p-3 rounded-lg">
-                      <p className="text-sm text-[#737373]">Despesas</p>
-                      <p className="text-lg font-bold text-red-600">
+                    <div className="bg-red-900/10 p-3 rounded-lg border border-red-500/20">
+                      <p className="text-sm text-[#b0b0b0]">Despesas</p>
+                      <p className="text-lg font-bold text-red-500">
                         R$ {analysis.insights.totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                   )}
                   {analysis.insights.savings !== undefined && (
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <p className="text-sm text-[#737373]">Economia</p>
+                    <div className="bg-blue-900/10 p-3 rounded-lg border border-blue-500/20">
+                      <p className="text-sm text-[#b0b0b0]">Economia</p>
                       <p className={`text-lg font-bold ${
-                        analysis.insights.savings >= 0 ? 'text-[#00bf63]' : 'text-red-600'
+                        analysis.insights.savings >= 0 ? 'text-blue-400' : 'text-red-500'
                       }`}>
                         R$ {analysis.insights.savings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                   )}
                   {analysis.insights.savingsRate !== undefined && (
-                    <div className="bg-purple-50 p-3 rounded-lg">
-                      <p className="text-sm text-[#737373]">Taxa de Economia</p>
-                      <p className="text-lg font-bold text-purple-600">
+                    <div className="bg-purple-900/10 p-3 rounded-lg border border-purple-500/20">
+                      <p className="text-sm text-[#b0b0b0]">Taxa de Economia</p>
+                      <p className="text-lg font-bold text-purple-400">
                         {analysis.insights.savingsRate.toFixed(1)}%
                       </p>
                     </div>
@@ -203,20 +203,20 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
 
                 {/* Recomendações Principais */}
                 {analysis.insights.recommendations && analysis.insights.recommendations.length > 0 && (
-                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-medium text-yellow-800 mb-2 flex items-center space-x-2">
+                  <div className="bg-yellow-900/10 p-4 rounded-lg mb-4 border border-yellow-500/20">
+                    <h4 className="font-medium text-yellow-400 mb-2 flex items-center space-x-2">
                       <Lightbulb className="h-4 w-4" />
                       <span>Principais Recomendações</span>
                     </h4>
                     <ul className="space-y-1">
                       {analysis.insights.recommendations.slice(0, isExpanded ? undefined : 2).map((rec, index) => (
-                        <li key={index} className="text-sm text-yellow-700 flex items-start space-x-2">
-                          <span className="text-yellow-600 mt-1">•</span>
+                        <li key={index} className="text-sm text-[#e0e0e0] flex items-start space-x-2">
+                          <span className="text-yellow-400 mt-1">•</span>
                           <span>{rec}</span>
                         </li>
                       ))}
                       {!isExpanded && analysis.insights.recommendations.length > 2 && (
-                        <li className="text-sm text-yellow-600 italic">
+                        <li className="text-sm text-yellow-400/70 italic">
                           +{analysis.insights.recommendations.length - 2} recomendações...
                         </li>
                       )}
@@ -254,14 +254,14 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
       )}
 
       {/* Informação sobre IA */}
-      <div className="card bg-blue-50 border-l-4 border-blue-500">
+      <div className="card bg-blue-900/10 border-l-4 border-blue-500">
         <div className="flex items-start space-x-3">
-          <div className="bg-blue-100 p-2 rounded-full">
-            <Brain className="h-5 w-5 text-blue-600" />
+          <div className="bg-blue-500/20 p-2 rounded-full">
+            <Brain className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <h4 className="font-semibold text-blue-900 mb-2">Como funcionam as análises?</h4>
-            <div className="text-sm text-blue-800 space-y-2">
+            <h4 className="font-semibold text-blue-400 mb-2">Como funcionam as análises?</h4>
+            <div className="text-sm text-[#e0e0e0] space-y-2">
               <p>
                 Nossa IA analisa seus dados financeiros para identificar padrões, tendências e oportunidades de melhoria.
               </p>
