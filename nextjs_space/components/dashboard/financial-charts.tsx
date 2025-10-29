@@ -23,16 +23,16 @@ interface FinancialChartsProps {
   isEmpty?: boolean
 }
 
-export default function FinancialCharts({ type, data, title, isEmpty }: FinancialChartsProps) {
+function FinancialCharts({ type, data, title, isEmpty }: FinancialChartsProps) {
   if (type === 'pie') {
     const pieData = data as PieData[]
     
     if (isEmpty || pieData.length === 0 || pieData.every(item => item.value === 0)) {
       return (
-        <div className="flex items-center justify-center h-64 text-[#737373] bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-center h-64 text-[#737373] bg-[#1a1a1a] rounded-lg">
           <div className="text-center">
             <div className="text-4xl mb-2">📊</div>
-            <p>Nenhuma transação para exibir</p>
+            <p className="text-white">Nenhuma transação para exibir</p>
             <p className="text-sm">Adicione {title.toLowerCase()} para ver o gráfico</p>
           </div>
         </div>
@@ -50,7 +50,7 @@ export default function FinancialCharts({ type, data, title, isEmpty }: Financia
               innerRadius={60}
               outerRadius={100}
               dataKey="value"
-              stroke="#ffffff"
+              stroke="#1a1a1a"
               strokeWidth={2}
             >
               {pieData.map((entry, index) => (
@@ -63,16 +63,17 @@ export default function FinancialCharts({ type, data, title, isEmpty }: Financia
                 title
               ]}
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e9ecef',
+                backgroundColor: '#1a1a1a',
+                border: '1px solid #2a2a2a',
                 borderRadius: '8px',
-                fontSize: '12px'
+                fontSize: '12px',
+                color: '#ffffff'
               }}
             />
             <Legend 
               verticalAlign="top"
               height={36}
-              wrapperStyle={{ fontSize: '11px' }}
+              wrapperStyle={{ fontSize: '11px', color: '#ffffff' }}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -90,13 +91,15 @@ export default function FinancialCharts({ type, data, title, isEmpty }: Financia
             <XAxis 
               dataKey="month" 
               tickLine={false}
-              tick={{ fontSize: 10 }}
+              tick={{ fontSize: 10, fill: '#ffffff' }}
               interval="preserveStartEnd"
+              stroke="#2a2a2a"
             />
             <YAxis 
               tickLine={false}
-              tick={{ fontSize: 10 }}
+              tick={{ fontSize: 10, fill: '#ffffff' }}
               tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+              stroke="#2a2a2a"
             />
             <Tooltip 
               formatter={(value: number, name: string) => {
@@ -111,16 +114,17 @@ export default function FinancialCharts({ type, data, title, isEmpty }: Financia
                 ]
               }}
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e9ecef',
+                backgroundColor: '#1a1a1a',
+                border: '1px solid #2a2a2a',
                 borderRadius: '8px',
-                fontSize: '11px'
+                fontSize: '11px',
+                color: '#ffffff'
               }}
             />
             <Legend 
               verticalAlign="top"
               height={36}
-              wrapperStyle={{ fontSize: '11px' }}
+              wrapperStyle={{ fontSize: '11px', color: '#ffffff' }}
             />
             <Line 
               type="monotone" 
@@ -155,3 +159,6 @@ export default function FinancialCharts({ type, data, title, isEmpty }: Financia
 
   return null
 }
+
+// Export default para que o dynamic import funcione corretamente
+export default FinancialCharts
