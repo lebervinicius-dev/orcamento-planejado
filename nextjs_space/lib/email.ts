@@ -13,7 +13,12 @@ const transporter = nodemailer.createTransport({
 
 export async function sendWelcomeEmail(to: string, name: string, email: string, password: string) {
   try {
-    await transporter.sendMail({
+    console.log('📧 Iniciando envio de email de boas-vindas...');
+    console.log('  → Para:', to);
+    console.log('  → Nome:', name);
+    console.log('  → Configuração GMAIL_USER:', process.env.GMAIL_USER);
+    
+    const result = await transporter.sendMail({
       from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
       to,
       subject: `🎉 Bem-vindo ao ${APP_NAME}!`,
@@ -59,7 +64,7 @@ export async function sendWelcomeEmail(to: string, name: string, email: string, 
                   </a>
                 </div>
                 
-                <p style="margin-top: 30px;">Qualquer dúvida, estamos à disposição!</p>
+                <p style="margin-top: 30px;">Qualquer dúvida, estamos à disposição em <strong>suporteplanejado@gmail.com</strong></p>
                 <p>Equipe ${APP_NAME} 💚</p>
               </div>
               
@@ -72,9 +77,14 @@ export async function sendWelcomeEmail(to: string, name: string, email: string, 
       `,
     });
     
-    return { success: true };
+    console.log('✅ Email enviado com sucesso!');
+    console.log('  → MessageID:', result.messageId);
+    
+    return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error('Erro ao enviar email de boas-vindas:', error);
+    console.error('❌ ERRO ao enviar email de boas-vindas:');
+    console.error('  → Error:', error);
+    console.error('  → Stack:', (error as Error).stack);
     return { success: false, error };
   }
 }

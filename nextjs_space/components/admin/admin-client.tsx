@@ -3,7 +3,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, UserPlus, Search, Shield, CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { Users, UserPlus, Search, Shield, CheckCircle, XCircle, Trash2, Mail } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -148,6 +148,28 @@ export default function AdminClient() {
     }
   }
 
+  const handleResendWelcomeEmail = async (userId: string, userEmail: string) => {
+    try {
+      toast.loading('Enviando email...')
+      
+      const response = await fetch(`/api/admin/users/${userId}/resend-welcome`, {
+        method: 'POST'
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao enviar email')
+      }
+
+      const data = await response.json()
+      toast.dismiss()
+      toast.success(`Email de boas-vindas enviado para ${userEmail}!`)
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.message || 'Erro ao enviar email')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -268,6 +290,15 @@ export default function AdminClient() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleResendWelcomeEmail(user.id, user.email)}
+                    className="border-[#00bf63] text-[#00bf63] hover:bg-[#00bf63] hover:text-white"
+                    title="Reenviar email de boas-vindas"
+                  >
+                    <Mail className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
