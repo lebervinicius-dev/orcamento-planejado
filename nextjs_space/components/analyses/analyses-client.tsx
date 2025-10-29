@@ -153,7 +153,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                   </div>
                   <button
                     onClick={() => toggleExpanded(analysis.id)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-[#1a1a1a] rounded-lg transition-colors"
                   >
                     {isExpanded ? (
                       <ChevronDown className="h-5 w-5 text-[#737373]" />
@@ -226,7 +226,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
 
                 {/* Conteúdo Completo */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100 pt-4 mt-4">
+                  <div className="border-t border-[#2a2a2a] pt-4 mt-4">
                     <div className="prose prose-sm max-w-none">
                       <div 
                         className="text-white leading-relaxed whitespace-pre-wrap"
@@ -260,16 +260,16 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
             <Brain className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <h4 className="font-semibold text-blue-400 mb-2">Como funcionam as análises?</h4>
+            <h4 className="font-semibold text-blue-400 mb-2">Consultora Virtual Sofia</h4>
             <div className="text-sm text-[#e0e0e0] space-y-2">
               <p>
-                Nossa IA analisa seus dados financeiros para identificar padrões, tendências e oportunidades de melhoria.
+                Sofia é sua psicóloga financeira pessoal, trazendo clareza emocional e prática às suas finanças.
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Análise de gastos por categoria</li>
-                <li>Identificação de padrões de consumo</li>
-                <li>Sugestões personalizadas de economia</li>
-                <li>Alertas sobre gastos incomuns</li>
+                <li>Análise empática de padrões comportamentais</li>
+                <li>Micro-acordos realistas e sustentáveis</li>
+                <li>Foco em bem-estar e prosperidade constante</li>
+                <li>Sem julgamentos ou prescrições rígidas</li>
               </ul>
             </div>
           </div>

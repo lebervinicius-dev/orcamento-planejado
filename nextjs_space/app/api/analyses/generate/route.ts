@@ -1,217 +1,225 @@
 
-export const dynamic = "force-dynamic"
-
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
+import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Não autorizado' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    // Verificar se há transações suficientes
-    const transactionCount = await prisma.transaction.count({
-      where: { userId: session.user.id }
-    })
+    const userId = session.user.id
 
-    if (transactionCount < 3) {
-      return NextResponse.json(
-        { error: 'Adicione pelo menos 3 transações para gerar uma análise' },
-        { status: 400 }
-      )
-    }
+    // Pegar o mês/ano atual
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() + 1
 
-    // Definir período de análise (último mês)
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setMonth(startDate.getMonth() - 1)
+    // Primeira data do mês
+    const startDate = new Date(year, month - 1, 1)
+    // Última data do mês
+    const endDate = new Date(year, month, 0, 23, 59, 59)
 
-    // Buscar dados para análise
+    // Buscar transações do mês atual
     const transactions = await prisma.transaction.findMany({
       where: {
-        userId: session.user.id,
+        userId,
         date: {
           gte: startDate,
           lte: endDate,
-        }
+        },
       },
       include: {
         category: true,
       },
-      orderBy: {
-        date: 'desc',
-      }
     })
 
-    // Se não há transações no período, usar todas
-    const analysisTransactions = transactions.length > 0 ? transactions : await prisma.transaction.findMany({
-      where: { userId: session.user.id },
-      include: { category: true },
-      orderBy: { date: 'desc' },
-      take: 50, // Últimas 50 transações
-    })
-
-    if (analysisTransactions.length === 0) {
+    if (transactions.length === 0) {
       return NextResponse.json(
-        { error: 'Nenhuma transação encontrada para análise' },
+        { error: 'Nenhuma transação encontrada neste mês' },
         { status: 400 }
       )
     }
 
-    // Calcular estatísticas
-    const income = analysisTransactions
-      .filter(t => t.type === 'INCOME')
+    // Calcular métricas
+    const income = transactions
+      .filter((t) => t.type === 'INCOME')
       .reduce((sum, t) => sum + Number(t.amount), 0)
 
-    const expenses = analysisTransactions
-      .filter(t => t.type === 'EXPENSE')
+    const expenses = transactions
+      .filter((t) => t.type === 'EXPENSE')
       .reduce((sum, t) => sum + Number(t.amount), 0)
 
-    const savings = income - expenses
-    const savingsRate = income > 0 ? (savings / income) * 100 : 0
+    const balance = income - expenses
 
-    // Categorias com mais gastos
-    const expensesByCategory = analysisTransactions
-      .filter(t => t.type === 'EXPENSE')
-      .reduce((acc, t) => {
-        const categoryName = t.category?.name || 'Outros'
-        acc[categoryName] = (acc[categoryName] || 0) + Number(t.amount)
-        return acc
-      }, {} as Record<string, number>)
+    // Médias (4.3 semanas por mês)
+    const weeklyIncomeAvg = income / 4.3
+    const weeklyExpenseAvg = expenses / 4.3
+    const weeklyBalanceAvg = balance / 4.3
 
-    const topExpenseCategory = Object.entries(expensesByCategory)
-      .sort(([,a], [,b]) => b - a)[0]
+    const daysInMonth = new Date(year, month, 0).getDate()
+    const dailyIncomeAvg = income / daysInMonth
+    const dailyExpenseAvg = expenses / daysInMonth
+    const dailyBalanceAvg = balance / daysInMonth
 
-    // Preparar dados para a IA
-    const analysisData = {
-      period: transactions.length > 0 ? 'último mês' : 'histórico geral',
-      totalTransactions: analysisTransactions.length,
-      totalIncome: income,
-      totalExpenses: expenses,
-      savings: savings,
-      savingsRate: savingsRate,
-      topExpenseCategory: topExpenseCategory ? topExpenseCategory[0] : null,
-      topExpenseAmount: topExpenseCategory ? topExpenseCategory[1] : 0,
-      expensesByCategory: Object.entries(expensesByCategory)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 5)
-        .map(([name, amount]) => ({ name, amount }))
+    // Top categorias de renda
+    const incomeByCategory: Record<string, number> = {}
+    transactions
+      .filter((t) => t.type === 'INCOME')
+      .forEach((t) => {
+        const catName = t.category?.name || 'Sem categoria'
+        incomeByCategory[catName] = (incomeByCategory[catName] || 0) + Number(t.amount)
+      })
+
+    const topIncomeCategories = Object.entries(incomeByCategory)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([categoria, total]) => ({ categoria, total }))
+
+    // Top categorias de despesa
+    const expenseByCategory: Record<string, number> = {}
+    transactions
+      .filter((t) => t.type === 'EXPENSE')
+      .forEach((t) => {
+        const catName = t.category?.name || 'Sem categoria'
+        expenseByCategory[catName] = (expenseByCategory[catName] || 0) + Number(t.amount)
+      })
+
+    const topExpenseCategories = Object.entries(expenseByCategory)
+      .sort(([, a], [, b]: [string, number]) => b - a)
+      .slice(0, 5)
+      .map(([categoria, total]) => ({ categoria, total }))
+
+    // Outliers (transações > 2x a média diária de despesa)
+    const avgExpensePerTransaction =
+      expenses / transactions.filter((t) => t.type === 'EXPENSE').length || 0
+    const threshold = avgExpensePerTransaction * 2
+
+    const outliers = transactions
+      .filter((t) => t.type === 'EXPENSE' && Number(t.amount) > threshold)
+      .sort((a, b) => Number(b.amount) - Number(a.amount))
+      .slice(0, 3)
+      .map((t) => ({
+        descricao: t.description,
+        categoria: t.category?.name || 'Sem categoria',
+        valor: Number(t.amount),
+        data: t.date.toISOString().split('T')[0],
+      }))
+
+    // Montar o payload para a Sofia
+    const payload = {
+      referencia: {
+        ano: year,
+        mes: `${year}-${String(month).padStart(2, '0')}`,
+      },
+      renda: {
+        total_mes: income,
+        media_semanal_estimada: weeklyIncomeAvg,
+        media_diaria_estimada: dailyIncomeAvg,
+        top_categorias: topIncomeCategories,
+      },
+      gastos: {
+        total_mes: expenses,
+        media_semanal_estimada: weeklyExpenseAvg,
+        media_diaria_estimada: dailyExpenseAvg,
+        top_categorias: topExpenseCategories,
+        outliers: outliers.length > 0 ? outliers : undefined,
+      },
+      saldo: {
+        mes: balance,
+        media_semanal_estimada: weeklyBalanceAvg,
+        media_diaria_estimada: dailyBalanceAvg,
+      },
     }
 
-    // Chamar a API de IA para gerar a análise
+    // Chamar a IA com o prompt da Sofia
+    const systemPrompt = `Você é a Consultora Virtual Sofia, psicóloga financeira e educadora em finanças pessoais. Sua missão é trazer clareza emocional e prática às finanças do usuário. Estilo: empático, observador, conciso e sem julgamentos. Foque nos padrões de comportamento por trás dos números e em pequenos ajustes sustentáveis.
+
+Diretrizes de resposta:
+
+1. Comece com um espelho objetivo: compare renda e gastos do mês atual, apresente o saldo e a visão semanal/diária (médias/estimativas).
+2. Interprete padrões de comportamento de forma cuidadosa: ritmo de gastos, categorias que concentram emoções (conforto, urgência, status), presença de 'picos' (outliers) e como reduzi-los sem sensação de perda.
+3. Orçamento como cuidado: proponha micro-acordos realistas (ex.: reduzir 10–15% de uma categoria emocional, criar mini-buffer para imprevistos) e rotinas leves (revisão semanal de 10 minutos).
+4. Mentalidade: trabalhe gatilhos, expectativas e significado do dinheiro (segurança, autonomia, prazer); evite culpa e prescrição rígida.
+5. Recapitule em bullets ao final (3–6 bullets curtos). Feche com uma frase motivacional serena, voltada à prosperidade como bem-estar e constância.
+
+Limites:
+
+- Evite jargões técnicos e recomendações de produtos de investimento.
+- Não peça dados sensíveis. Se faltarem dados, assuma estimativas e diga isso.
+- Resposta breve: ~220–280 palavras.`
+
+    const userPrompt = `Analise os dados financeiros abaixo e forneça uma consultoria empática e prática:
+
+${JSON.stringify(payload, null, 2)}`
+
+    // Chamar a API da IA
     const aiResponse = await fetch('https://apps.abacus.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`
+        Authorization: `Bearer ${process.env.ABACUSAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: 'gpt-4.1-mini',
-        messages: [{
-          role: 'user',
-          content: `Você é um consultor financeiro especialista em finanças pessoais brasileiras. Analise os seguintes dados financeiros e forneça insights personalizados e recomendações práticas.
-
-DADOS FINANCEIROS (${analysisData.period}):
-- Total de transações: ${analysisData.totalTransactions}
-- Receitas: R$ ${analysisData.totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-- Despesas: R$ ${analysisData.totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-- Saldo: R$ ${analysisData.savings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-- Taxa de economia: ${analysisData.savingsRate.toFixed(1)}%
-- Maior categoria de gasto: ${analysisData.topExpenseCategory} (R$ ${analysisData.topExpenseAmount?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })})
-
-DISTRIBUIÇÃO DE GASTOS:
-${analysisData.expensesByCategory.map(cat => `- ${cat.name}: R$ ${cat.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`).join('\n')}
-
-Forneça uma análise estruturada incluindo:
-
-1. **RESUMO EXECUTIVO**
-   - Avaliação geral da situação financeira
-   - Principal ponto forte e área de melhoria
-
-2. **ANÁLISE DETALHADA**
-   - Padrões de gastos identificados
-   - Comparação com padrões brasileiros saudáveis
-   - Tendências preocupantes ou positivas
-
-3. **RECOMENDAÇÕES PRÁTICAS**
-   - 3-5 ações específicas e implementáveis
-   - Dicas de economia personalizadas
-   - Sugestões de metas financeiras
-
-4. **PRÓXIMOS PASSOS**
-   - Plano de ação para os próximos 30 dias
-
-Use linguagem acessível, seja direto e prático. Foque em soluções aplicáveis ao contexto brasileiro.`
-        }],
-        max_tokens: 3000,
-        temperature: 0.7
-      })
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+      }),
     })
 
     if (!aiResponse.ok) {
-      console.error('Erro na API de IA:', await aiResponse.text())
-      return NextResponse.json(
-        { error: 'Erro ao gerar análise com IA' },
-        { status: 500 }
-      )
+      throw new Error('Erro ao gerar análise com IA')
     }
 
     const aiData = await aiResponse.json()
-    const analysisContent = aiData.choices?.[0]?.message?.content
+    const analysisContent = aiData.choices?.[0]?.message?.content || 'Análise não disponível'
 
-    if (!analysisContent) {
-      return NextResponse.json(
-        { error: 'Erro ao processar resposta da IA' },
-        { status: 500 }
-      )
+    // Extrair recomendações (bullets após "Recapitulando")
+    const recommendations: string[] = []
+    const recapMatch = analysisContent.match(/Recapitulando[:\s]*([\s\S]*?)(?:\n\n|$)/i)
+    if (recapMatch) {
+      const recapText = recapMatch[1]
+      const bullets = recapText.match(/[-•*]\s*(.+)/g)
+      if (bullets) {
+        recommendations.push(...bullets.map((b: string) => b.replace(/^[-•*]\s*/, '').trim()))
+      }
     }
 
-    // Gerar recomendações estruturadas
-    const recommendations = [
-      savingsRate < 10 ? 'Tente economizar pelo menos 10% da sua renda mensal' : null,
-      analysisData.topExpenseAmount > (income * 0.3) ? `Reduza gastos em ${analysisData.topExpenseCategory}` : null,
-      income === 0 ? 'Registre suas fontes de renda para ter um controle completo' : null,
-      analysisTransactions.length < 10 ? 'Registre todas as suas transações para análises mais precisas' : null,
-      savingsRate > 20 ? 'Considere investir parte da sua economia' : null,
-    ].filter(Boolean) as string[]
-
-    // Salvar análise no banco
+    // Criar a análise no banco
     const analysis = await prisma.aiAnalysis.create({
       data: {
-        title: `Análise Financeira - ${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`,
+        userId,
+        title: `Análise Financeira - ${new Date(year, month - 1).toLocaleDateString('pt-BR', {
+          month: 'long',
+          year: 'numeric',
+        })}`,
         content: analysisContent,
-        periodStart: transactions.length > 0 ? startDate : new Date(analysisTransactions[analysisTransactions.length - 1]?.date || new Date()),
-        periodEnd: endDate,
         insights: JSON.stringify({
           totalIncome: income,
           totalExpenses: expenses,
-          savings: savings,
-          savingsRate: savingsRate,
-          topExpenseCategory: analysisData.topExpenseCategory,
-          topExpenseAmount: analysisData.topExpenseAmount,
-          recommendations: recommendations
+          savings: balance,
+          savingsRate: income > 0 ? (balance / income) * 100 : 0,
+          topExpenseCategory: topExpenseCategories[0]?.categoria,
+          topExpenseAmount: topExpenseCategories[0]?.total,
+          recommendations: recommendations.length > 0 ? recommendations : undefined,
         }),
-        userId: session.user.id,
-      }
+        periodStart: startDate,
+        periodEnd: endDate,
+      },
     })
 
-    return NextResponse.json({
-      message: 'Análise gerada com sucesso',
-      analysisId: analysis.id
-    }, { status: 201 })
-
-  } catch (error) {
+    return NextResponse.json(analysis)
+  } catch (error: any) {
     console.error('Erro ao gerar análise:', error)
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: error.message || 'Erro ao gerar análise' },
       { status: 500 }
     )
   }

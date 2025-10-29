@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, DollarSign, Calendar, Tag, FileText } from 'lucide-react'
+import { ArrowLeft, DollarSign, Calendar, Tag, FileText, Edit2 } from 'lucide-react'
 
 interface Category {
   id: string
@@ -201,7 +201,7 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
               id="amount"
               name="amount"
               type="number"
-              step="any"
+              step="0.01"
               min="0"
               value={formData.amount}
               onChange={handleChange}
@@ -252,9 +252,18 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
         {/* Categoria */}
         <div>
-          <label htmlFor="categoryId" className="block text-sm font-medium text-white mb-2">
-            Categoria
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label htmlFor="categoryId" className="block text-sm font-medium text-white">
+              Categoria
+            </label>
+            <Link 
+              href="/dashboard/categories"
+              className="text-sm text-[#00bf63] hover:underline flex items-center space-x-1"
+            >
+              <Edit2 className="h-3 w-3" />
+              <span>Editar categorias</span>
+            </Link>
+          </div>
           
           {!showNewCategory ? (
             <>
