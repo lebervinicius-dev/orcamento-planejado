@@ -1,0 +1,126 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/orcamento_planejado/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Tabelas do NextAuth.js para autenticação
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // Para autenticação email/senha
+  accounts      Account[]
+  sessions      Session[]
+
+  // Relacionamentos para gestão financeira
+  transactions  Transaction[]
+  categories    Category[]
+  aiAnalyses    AiAnalysis[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Tabelas do sistema financeiro
+
+model Category {
+  id     String @id @default(cuid())
+  name   String
+  type   TransactionType // INCOME ou EXPENSE
+  color  String? // Cor hex para visualizações (#00bf63, #737373, etc)
+  userId String
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name, type]) // Usuário não pode ter categoria duplicada por tipo
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  amount      Decimal         @db.Decimal(12, 2) // Valor em R$ (suporta até R$ 9.999.999.999,99)
+  description String
+  date        DateTime
+  type        TransactionType
+  categoryId  String
+  userId      String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date]) // Index para consultas por usuário e data
+  @@index([userId, type]) // Index para consultas por usuário e tipo
+  @@index([userId, createdAt]) // Index para ordenação por data de criação
+}
+
+model AiAnalysis {
+  id          String   @id @default(cuid())
+  title       String   // Título da análise (ex: "Análise Semanal - Janeiro 2024")
+  content     String   @db.Text // Análise gerada pela IA em markdown
+  periodStart DateTime // Início do período analisado
+  periodEnd   DateTime // Fim do período analisado
+  insights    String   @db.Text // Insights estruturados em formato JSON
+  userId      String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, createdAt]) // Index para histórico de análises
+  @@index([userId, periodStart, periodEnd]) // Index para consultas por período
+}
+
+enum TransactionType {
+  INCOME  // Receita/Entrada
+  EXPENSE // Despesa/Saída
+}
