@@ -64,6 +64,144 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Dashboard Preview Section */}
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <h2 className="text-3xl font-bold text-white text-center mb-4">
+          Veja como é o seu Dashboard
+        </h2>
+        <p className="text-[#b0b0b0] text-center mb-12 max-w-2xl mx-auto">
+          Visualize seus gastos, receitas e saldo de forma clara e organizada
+        </p>
+
+        {/* Mock Dashboard Cards */}
+        <div className="space-y-6">
+          {/* Cards de Resumo */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[#737373] text-sm font-medium mb-1">Receitas do Mês</p>
+                  <p className="text-2xl font-bold text-[#00bf63]">R$ 4.500,00</p>
+                </div>
+                <div className="bg-[#00bf63]/10 p-3 rounded-full">
+                  <TrendingUp className="h-6 w-6 text-[#00bf63]" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[#737373] text-sm font-medium mb-1">Despesas do Mês</p>
+                  <p className="text-2xl font-bold text-red-600">R$ 3.200,00</p>
+                </div>
+                <div className="bg-red-100 p-3 rounded-full">
+                  <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-6 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[#737373] text-sm font-medium mb-1">Saldo do Mês</p>
+                  <p className="text-2xl font-bold text-[#00bf63]">R$ 1.300,00</p>
+                </div>
+                <div className="bg-[#00bf63]/10 p-3 rounded-full">
+                  <DollarSign className="h-6 w-6 text-[#00bf63]" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Análise de IA Mock */}
+          <div className="bg-[#0d0d0d] border-l-4 border-[#00bf63] rounded-lg p-6 shadow-lg">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-[#00bf63]/10 p-2 rounded-full">
+                <Brain className="h-5 w-5 text-[#00bf63]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Análise Financeira com IA</h3>
+                <p className="text-sm text-[#737373]">Insights personalizados sobre suas finanças</p>
+              </div>
+            </div>
+            <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#2a2a2a]">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="text-center">
+                  <p className="text-sm text-[#737373]">Taxa de Economia</p>
+                  <p className="text-xl font-bold text-[#00bf63]">28.9%</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-[#737373]">Maior Gasto</p>
+                  <p className="text-lg font-semibold text-white">Alimentação</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-[#737373]">Economia</p>
+                  <p className="text-xl font-bold text-[#00bf63]">R$ 1.300,00</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-[#737373]">Recomendações</p>
+                  <p className="text-lg font-semibold text-[#00bf63]">3</p>
+                </div>
+              </div>
+              <div className="bg-[#00bf63]/10 p-3 rounded-lg border border-[#00bf63]/20">
+                <p className="text-sm font-medium text-[#00bf63]">💡 Dica Principal:</p>
+                <p className="text-sm text-white">Seus gastos com alimentação estão 15% acima da média. Considere planejar refeições semanais para economizar.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Gráficos Mock */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-6 shadow-lg">
+              <div className="flex items-center space-x-2 mb-4">
+                <BarChart3 className="h-5 w-5 text-[#00bf63]" />
+                <h3 className="text-lg font-semibold text-white">Receitas por Categoria</h3>
+              </div>
+              <div className="h-48 flex items-center justify-center bg-[#1a1a1a] rounded-lg">
+                <div className="text-center">
+                  <svg className="h-24 w-24 mx-auto text-[#00bf63] opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                  </svg>
+                  <p className="text-[#737373] text-sm mt-2">Gráfico de Pizza Interativo</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg p-6 shadow-lg">
+              <div className="flex items-center space-x-2 mb-4">
+                <BarChart3 className="h-5 w-5 text-red-600" />
+                <h3 className="text-lg font-semibold text-white">Despesas por Categoria</h3>
+              </div>
+              <div className="h-48 flex items-center justify-center bg-[#1a1a1a] rounded-lg">
+                <div className="text-center">
+                  <svg className="h-24 w-24 mx-auto text-red-500 opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                  </svg>
+                  <p className="text-[#737373] text-sm mt-2">Gráfico de Pizza Interativo</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to Action no Preview */}
+          <div className="text-center pt-8">
+            <p className="text-[#b0b0b0] mb-4">E muito mais funcionalidades esperando por você!</p>
+            <Link
+              href="/auth/login"
+              className="btn-primary text-lg px-8 py-3 inline-flex items-center space-x-2"
+            >
+              <span>Começar Agora</span>
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-3xl font-bold text-white text-center mb-12">

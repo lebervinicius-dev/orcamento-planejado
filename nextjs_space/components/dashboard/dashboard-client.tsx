@@ -206,6 +206,70 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </div>
       </div>
 
+      {/* Última Análise de IA - MOVIDA PARA CIMA */}
+      {data.latestAnalysis && (
+        <div className="card bg-gradient-to-r from-[#00bf63]/10 to-[#0d0d0d] border-l-4 border-[#00bf63]">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="bg-[#00bf63]/10 p-2 rounded-full">
+                <Brain className="h-5 w-5 text-[#00bf63]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">{data.latestAnalysis.title}</h3>
+                <p className="text-sm text-[#737373]">
+                  Gerada em {new Date(data.latestAnalysis.createdAt).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+            </div>
+            <Link 
+              href="/dashboard/analyses"
+              className="btn-outline text-sm flex items-center space-x-1 border-[#00bf63] text-[#00bf63] hover:bg-[#00bf63] hover:text-white"
+            >
+              <span>Ver Todas</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#2a2a2a]">
+            {/* Preview dos insights */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="text-center">
+                <p className="text-sm text-[#737373]">Taxa de Economia</p>
+                <p className="text-xl font-bold text-[#00bf63]">
+                  {data.latestAnalysis.insights.savingsRate?.toFixed(1) || 0}%
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-[#737373]">Maior Gasto</p>
+                <p className="text-lg font-semibold text-white">
+                  {data.latestAnalysis.insights.topExpenseCategory || 'N/A'}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-[#737373]">Economia</p>
+                <p className="text-xl font-bold text-[#00bf63]">
+                  R$ {(data.latestAnalysis.insights.savings || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-[#737373]">Recomendações</p>
+                <p className="text-lg font-semibold text-[#00bf63]">
+                  {data.latestAnalysis.insights.recommendations?.length || 0}
+                </p>
+              </div>
+            </div>
+            
+            {/* Primeira recomendação */}
+            {data.latestAnalysis.insights.recommendations && data.latestAnalysis.insights.recommendations.length > 0 && (
+              <div className="bg-[#00bf63]/10 p-3 rounded-lg border border-[#00bf63]/20">
+                <p className="text-sm font-medium text-[#00bf63]">💡 Dica Principal:</p>
+                <p className="text-sm text-white">{data.latestAnalysis.insights.recommendations[0]}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Gráfico de Pizza - Receitas */}
@@ -255,70 +319,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           title="Saldo Mensal"
         />
       </div>
-
-      {/* Última Análise de IA */}
-      {data.latestAnalysis && (
-        <div className="card bg-gradient-to-r from-[#00bf63]/5 to-blue-50 border-l-4 border-[#00bf63]">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <div className="bg-[#00bf63]/10 p-2 rounded-full">
-                <Brain className="h-5 w-5 text-[#00bf63]" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">{data.latestAnalysis.title}</h3>
-                <p className="text-sm text-[#737373]">
-                  Gerada em {new Date(data.latestAnalysis.createdAt).toLocaleDateString('pt-BR')}
-                </p>
-              </div>
-            </div>
-            <Link 
-              href="/dashboard/analyses"
-              className="btn-outline text-sm flex items-center space-x-1"
-            >
-              <span>Ver Todas</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg">
-            {/* Preview dos insights */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center">
-                <p className="text-sm text-[#737373]">Taxa de Economia</p>
-                <p className="text-xl font-bold text-[#00bf63]">
-                  {data.latestAnalysis.insights.savingsRate?.toFixed(1) || 0}%
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-[#737373]">Maior Gasto</p>
-                <p className="text-lg font-semibold text-white">
-                  {data.latestAnalysis.insights.topExpenseCategory || 'N/A'}
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-[#737373]">Economia</p>
-                <p className="text-xl font-bold text-[#00bf63]">
-                  R$ {(data.latestAnalysis.insights.savings || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-[#737373]">Recomendações</p>
-                <p className="text-lg font-semibold text-blue-600">
-                  {data.latestAnalysis.insights.recommendations?.length || 0}
-                </p>
-              </div>
-            </div>
-            
-            {/* Primeira recomendação */}
-            {data.latestAnalysis.insights.recommendations && data.latestAnalysis.insights.recommendations.length > 0 && (
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-blue-800">💡 Dica Principal:</p>
-                <p className="text-sm text-blue-700">{data.latestAnalysis.insights.recommendations[0]}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Transações Recentes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

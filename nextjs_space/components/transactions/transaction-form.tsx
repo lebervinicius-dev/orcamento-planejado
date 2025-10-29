@@ -202,9 +202,22 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
               name="amount"
               type="number"
               step="0.01"
-              min="0"
+              min="0.01"
               value={formData.amount}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value
+                // Permite apenas números com até 2 casas decimais
+                if (value === '' || /^\d+\.?\d{0,2}$/.test(value)) {
+                  setFormData(prev => ({ ...prev, amount: value }))
+                }
+              }}
+              onBlur={(e) => {
+                // Formata para 2 casas decimais ao perder o foco
+                const value = parseFloat(e.target.value)
+                if (!isNaN(value) && value > 0) {
+                  setFormData(prev => ({ ...prev, amount: value.toFixed(2) }))
+                }
+              }}
               className="input pl-10"
               placeholder="0.00"
               required
