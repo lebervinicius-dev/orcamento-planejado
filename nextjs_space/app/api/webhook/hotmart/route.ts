@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role: 'user',
         isActive: true,
-        hotmartId: body.data?.product?.id || `hotmart_${Date.now()}`,
+        hotmartId: String(body.data?.product?.id || `hotmart_${Date.now()}`),
       }
     })
 
