@@ -1,6 +1,6 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { sendPasswordResetEmail } from '@/lib/email'
 import crypto from 'crypto'
 
 export async function POST(request: NextRequest) {
@@ -36,19 +36,11 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Em produção, enviar email aqui
-    // Por enquanto, vamos logar o link no console
-    const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`
-    
-    console.log('\n🔐 LINK DE RECUPERAÇÃO DE SENHA:')
-    console.log(`Email: ${email}`)
-    console.log(`Link: ${resetLink}`)
-    console.log(`Expira em: ${resetTokenExpiry.toLocaleString('pt-BR')}\n`)
+    // Enviar email de recuperação
+    await sendPasswordResetEmail(user.email, resetToken)
 
     return NextResponse.json({
       message: 'Se o email existir, você receberá um link de recuperação.',
-      // Em desenvolvimento, retornar o link
-      ...(process.env.NODE_ENV === 'development' && { resetLink }),
     })
   } catch (error) {
     console.error('Erro ao solicitar recuperação de senha:', error)

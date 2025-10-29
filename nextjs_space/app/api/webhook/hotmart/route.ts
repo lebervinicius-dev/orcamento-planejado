@@ -1,169 +1,113 @@
 
-
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import bcryptjs from 'bcryptjs'
+import { sendWelcomeEmail } from '@/lib/email'
+import bcrypt from 'bcryptjs'
 
-// Interface para o payload do Hotmart
-interface HotmartWebhookPayload {
-  id: string
-  creation_date: number
+// Interface do payload da Hotmart
+interface HotmartWebhookData {
   event: string
-  version: string
   data: {
     buyer: {
       email: string
-      name?: string
+      name: string
+    }
+    product: {
+      id: string
+      name: string
     }
     purchase: {
-      transaction: string
       status: string
       approved_date?: number
     }
-    product: {
-      id: number
-      name: string
-    }
   }
-}
-
-// Função para gerar senha aleatória
-function generatePassword(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%'
-  let password = ''
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return password
-}
-
-// Função para enviar email (simples)
-async function sendWelcomeEmail(email: string, password: string, name?: string) {
-  // Se você tiver um serviço de email configurado (SendGrid, Resend, etc)
-  // implemente aqui. Por enquanto, apenas log
-  console.log('=== EMAIL DE BOAS-VINDAS ===')
-  console.log('Para:', email)
-  console.log('Nome:', name || 'Cliente')
-  console.log('Senha:', password)
-  console.log('Login em: https://seu-dominio.com/auth/login')
-  console.log('============================')
-  
-  // TODO: Integrar com serviço de email
-  // Exemplo com Resend:
-  // await resend.emails.send({
-  //   from: 'contato@seudominio.com',
-  //   to: email,
-  //   subject: 'Bem-vindo ao Orçamento Planejado!',
-  //   html: `<h1>Bem-vindo!</h1><p>Seu acesso foi liberado:</p>
-  //          <p>Email: ${email}</p><p>Senha: ${password}</p>`
-  // })
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body: HotmartWebhookPayload = await request.json()
+    const body: HotmartWebhookData = await request.json()
+    
+    console.log('📦 Webhook Hotmart recebido:', JSON.stringify(body, null, 2))
 
-    // Validação básica do payload
-    if (!body.data?.buyer?.email || !body.data?.purchase?.transaction) {
+    // Verificar se é uma compra aprovada
+    const isApproved = 
+      body.event === 'PURCHASE_APPROVED' || 
+      body.data?.purchase?.status === 'approved'
+
+    if (!isApproved) {
+      console.log('⏭️  Evento ignorado (não é compra aprovada)')
+      return NextResponse.json({ 
+        message: 'Evento recebido, mas não é uma compra aprovada' 
+      })
+    }
+
+    const { buyer } = body.data
+    const email = buyer.email
+    const name = buyer.name
+
+    if (!email || !name) {
+      console.error('❌ Email ou nome ausente no payload')
       return NextResponse.json(
-        { error: 'Payload inválido' },
+        { error: 'Email e nome são obrigatórios' },
         { status: 400 }
       )
     }
 
-    const { buyer, purchase } = body.data
+    // Verificar se o usuário já existe
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (existingUser) {
+      console.log('👤 Usuário já existe:', email)
+      return NextResponse.json({ 
+        message: 'Usuário já cadastrado',
+        userId: existingUser.id 
+      })
+    }
+
+    // Criar novo usuário com senha padrão
+    const defaultPassword = '12345678'
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name,
+        password: hashedPassword,
+        role: 'user',
+        isActive: true,
+        hotmartId: body.data?.product?.id || `hotmart_${Date.now()}`,
+      }
+    })
+
+    console.log('✅ Novo usuário criado:', newUser.id)
+
+    // Enviar email de boas-vindas
+    await sendWelcomeEmail(email, name, email, defaultPassword)
     
-    // Eventos que liberam acesso
-    const allowedEvents = [
-      'PURCHASE_COMPLETE',
-      'PURCHASE_APPROVED',
-      'SUBSCRIPTION_ACTIVE'
-    ]
+    console.log('📧 Email de boas-vindas enviado para:', email)
 
-    if (allowedEvents.includes(body.event)) {
-      // Verifica se o usuário já existe
-      let user = await prisma.user.findUnique({
-        where: { email: buyer.email }
-      })
-
-      if (!user) {
-        // Cria novo usuário
-        const password = generatePassword()
-        const hashedPassword = await bcryptjs.hash(password, 10)
-
-        user = await prisma.user.create({
-          data: {
-            email: buyer.email,
-            name: buyer.name || buyer.email.split('@')[0],
-            password: hashedPassword,
-            hotmartId: purchase.transaction,
-            isActive: true,
-            role: 'user'
-          }
-        })
-
-        // Envia email com credenciais
-        await sendWelcomeEmail(buyer.email, password, buyer.name)
-
-        return NextResponse.json({
-          success: true,
-          message: 'Usuário criado com sucesso',
-          userId: user.id
-        })
-      } else {
-        // Usuário já existe - apenas ativa se estiver inativo
-        if (!user.isActive) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { isActive: true }
-          })
-        }
-
-        return NextResponse.json({
-          success: true,
-          message: 'Usuário já existe e foi ativado'
-        })
-      }
-    }
-
-    // Eventos de cancelamento
-    if (body.event === 'PURCHASE_CANCELED' || body.event === 'SUBSCRIPTION_CANCELLATION') {
-      const user = await prisma.user.findUnique({
-        where: { email: buyer.email }
-      })
-
-      if (user) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { isActive: false }
-        })
-
-        return NextResponse.json({
-          success: true,
-          message: 'Usuário desativado'
-        })
-      }
-    }
-
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      message: 'Evento processado'
+      message: 'Usuário criado e email enviado com sucesso',
+      userId: newUser.id 
     })
 
   } catch (error) {
-    console.error('Erro no webhook Hotmart:', error)
+    console.error('❌ Erro no webhook Hotmart:', error)
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: 'Erro ao processar webhook' },
       { status: 500 }
     )
   }
 }
 
-// GET para testar se o endpoint está funcionando
+// GET para testar se o endpoint está ativo
 export async function GET() {
-  return NextResponse.json({
+  return NextResponse.json({ 
     status: 'ok',
-    message: 'Webhook Hotmart endpoint funcionando',
+    message: 'Webhook Hotmart ativo',
     timestamp: new Date().toISOString()
   })
 }
