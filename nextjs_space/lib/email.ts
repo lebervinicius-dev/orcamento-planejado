@@ -3,7 +3,9 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = process.env.EMAIL_FROM || 'suporteplanejado@gmail.com';
+// ⚠️ IMPORTANTE: Gmail não funciona em produção no Resend
+// Use onboarding@resend.dev para testes ou configure um domínio próprio
+const FROM_EMAIL = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 const APP_NAME = 'Orçamento Planejado';
 
 export async function sendWelcomeEmail(to: string, name: string, email: string, password: string) {

@@ -25,30 +25,64 @@ interface HotmartWebhookData {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: HotmartWebhookData = await request.json()
+    const body: any = await request.json()
     
     console.log('📦 Webhook Hotmart recebido:', JSON.stringify(body, null, 2))
 
-    // Verificar se é uma compra aprovada
-    const isApproved = 
-      body.event === 'PURCHASE_APPROVED' || 
-      body.data?.purchase?.status === 'approved'
+    // Suporte a múltiplos formatos de payload da Hotmart
+    let email: string | undefined
+    let name: string | undefined
+    let isApproved = false
+
+    // Formato 1: event direto
+    if (body.event === 'PURCHASE_APPROVED' || body.event === 'PURCHASE_COMPLETE') {
+      isApproved = true
+      email = body.data?.buyer?.email
+      name = body.data?.buyer?.name
+    }
+
+    // Formato 2: status dentro de purchase
+    if (body.data?.purchase?.status === 'approved' || body.data?.purchase?.status === 'complete') {
+      isApproved = true
+      email = body.data?.buyer?.email || body.buyer?.email
+      name = body.data?.buyer?.name || body.buyer?.name
+    }
+
+    // Formato 3: compra direta (alguns webhooks da Hotmart)
+    if (body.purchase?.status === 'approved' || body.purchase?.status === 'complete') {
+      isApproved = true
+      email = body.buyer?.email || body.customer?.email
+      name = body.buyer?.name || body.customer?.name
+    }
+
+    // Formato 4: event como COMPRA_APROVADA (português)
+    if (body.event === 'COMPRA_APROVADA' || body.evento === 'COMPRA_APROVADA') {
+      isApproved = true
+      email = body.comprador?.email || body.buyer?.email
+      name = body.comprador?.nome || body.buyer?.name
+    }
+
+    console.log('🔍 Dados extraídos:', { isApproved, email, name })
 
     if (!isApproved) {
       console.log('⏭️  Evento ignorado (não é compra aprovada)')
       return NextResponse.json({ 
-        message: 'Evento recebido, mas não é uma compra aprovada' 
+        message: 'Evento recebido, mas não é uma compra aprovada',
+        receivedEvent: body.event || body.evento || 'unknown'
       })
     }
 
-    const { buyer } = body.data
-    const email = buyer.email
-    const name = buyer.name
-
     if (!email || !name) {
       console.error('❌ Email ou nome ausente no payload')
+      console.error('Payload completo:', JSON.stringify(body, null, 2))
       return NextResponse.json(
-        { error: 'Email e nome são obrigatórios' },
+        { 
+          error: 'Email e nome são obrigatórios',
+          debug: {
+            receivedPayload: body,
+            extractedData: { email, name }
+          }
+        },
         { status: 400 }
       )
     }
@@ -84,9 +118,13 @@ export async function POST(request: NextRequest) {
     console.log('✅ Novo usuário criado:', newUser.id)
 
     // Enviar email de boas-vindas
-    await sendWelcomeEmail(email, name, email, defaultPassword)
-    
-    console.log('📧 Email de boas-vindas enviado para:', email)
+    try {
+      await sendWelcomeEmail(email, name, email, defaultPassword)
+      console.log('📧 Email de boas-vindas enviado para:', email)
+    } catch (emailError) {
+      console.error('⚠️ Erro ao enviar email (usuário foi criado):', emailError)
+      // Não falha o webhook se o email não enviar
+    }
 
     return NextResponse.json({ 
       success: true,
