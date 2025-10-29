@@ -298,9 +298,12 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                 <p className="text-sm text-[#737373] text-center">
                   Precisa de ajuda? Entre em contato:
                 </p>
-                <p className="text-[#00bf63] font-medium text-center mt-2">
+                <a
+                  href="mailto:suporteplanejado@gmail.com"
+                  className="text-[#00bf63] hover:underline font-medium text-center block mt-2"
+                >
                   suporteplanejado@gmail.com
-                </p>
+                </a>
               </div>
             </div>
           )}

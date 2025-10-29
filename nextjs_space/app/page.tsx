@@ -54,6 +54,12 @@ export default function HomePage() {
               <DollarSign className="h-5 w-5" />
             </a>
           </div>
+          <div className="mt-6">
+            <p className="text-[#737373] text-lg">
+              <span className="line-through">de R$ 29,90</span>{' '}
+              <span className="text-[#00bf63] font-bold text-2xl">por R$ 19,90</span>
+            </p>
+          </div>
         </div>
       </section>
 
