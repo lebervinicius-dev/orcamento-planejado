@@ -48,11 +48,13 @@ interface DashboardData {
   monthlyData: MonthlyData[]
   latestAnalysis: Analysis | null
   currentMonth: string
+  selectedMonth: number
+  selectedYear: number
 }
 
 export function DashboardClient({ data }: { data: DashboardData }) {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedMonth, setSelectedMonth] = useState(data.selectedMonth)
+  const [selectedYear, setSelectedYear] = useState(data.selectedYear)
   const [isLoading, setIsLoading] = useState(false)
 
   // Recarregar dados quando mês/ano mudar
@@ -109,8 +111,8 @@ export function DashboardClient({ data }: { data: DashboardData }) {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ]
 
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
+  // Anos de 2020 a 2035
+  const years = Array.from({ length: 16 }, (_, i) => 2020 + i)
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -129,6 +129,8 @@ export default async function DashboardPage({
       insights: JSON.parse(latestAnalysis.insights),
     } : null,
     currentMonth: selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+    selectedMonth: currentMonth,
+    selectedYear: currentYear,
   }
 
   return <DashboardClient data={dashboardData} />
