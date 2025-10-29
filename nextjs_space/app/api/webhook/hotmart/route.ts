@@ -26,8 +26,13 @@ interface HotmartWebhookData {
 export async function POST(request: NextRequest) {
   try {
     const body: any = await request.json()
+    const timestamp = new Date().toISOString()
     
-    console.log('📦 Webhook Hotmart recebido:', JSON.stringify(body, null, 2))
+    console.log('\n' + '='.repeat(80))
+    console.log(`🔔 WEBHOOK HOTMART RECEBIDO - ${timestamp}`)
+    console.log('='.repeat(80))
+    console.log('📦 Payload completo:', JSON.stringify(body, null, 2))
+    console.log('='.repeat(80) + '\n')
 
     // Suporte a múltiplos formatos de payload da Hotmart
     let email: string | undefined
@@ -133,9 +138,20 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('❌ Erro no webhook Hotmart:', error)
+    const timestamp = new Date().toISOString()
+    console.error('\n' + '='.repeat(80))
+    console.error(`💥 ERRO NO WEBHOOK HOTMART - ${timestamp}`)
+    console.error('='.repeat(80))
+    console.error('Error:', error)
+    console.error('Stack:', (error as Error).stack)
+    console.error('='.repeat(80) + '\n')
+    
     return NextResponse.json(
-      { error: 'Erro ao processar webhook' },
+      { 
+        error: 'Erro ao processar webhook',
+        timestamp,
+        details: (error as Error).message
+      },
       { status: 500 }
     )
   }
