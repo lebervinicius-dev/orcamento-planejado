@@ -1,17 +1,20 @@
+import nodemailer from 'nodemailer';
 
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// ⚠️ IMPORTANTE: Gmail não funciona em produção no Resend
-// Use onboarding@resend.dev para testes ou configure um domínio próprio
-const FROM_EMAIL = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 const APP_NAME = 'Orçamento Planejado';
+
+// Configuração do transporter do Gmail
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 export async function sendWelcomeEmail(to: string, name: string, email: string, password: string) {
   try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
       to,
       subject: `🎉 Bem-vindo ao ${APP_NAME}!`,
       html: `
@@ -80,8 +83,8 @@ export async function sendPasswordResetEmail(to: string, resetToken: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL || 'https://orcamento-planejado.abacusai.app'}/auth/reset-password?token=${resetToken}`;
   
   try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
       to,
       subject: `🔒 Recuperação de senha - ${APP_NAME}`,
       html: `
