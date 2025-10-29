@@ -69,7 +69,7 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
     // Se está alterando senha
     if (newPassword) {
       if (!phone.trim()) {
-        toast.error('Telefone é obrigatório para alterar a senha')
+        toast.error('Telefone é requisito para alterar senha')
         return
       }
 
@@ -219,7 +219,7 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                 </div>
                 {newPassword && (
                   <p className="text-xs text-yellow-500 mt-1">
-                    ⚠️ Telefone obrigatório para alterar senha
+                    ⚠️ Telefone é requisito para alterar senha
                   </p>
                 )}
               </div>
@@ -228,7 +228,7 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               <div className="border-t border-[#2a2a2a] pt-4">
                 <h3 className="text-lg font-semibold text-white mb-4">Alterar Senha</h3>
                 <p className="text-sm text-[#737373] mb-4">
-                  Para alterar sua senha, preencha os campos abaixo. Telefone é obrigatório.
+                  Para alterar sua senha, preencha os campos abaixo. Telefone é requisito para alterar senha.
                 </p>
               </div>
 
@@ -298,12 +298,9 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                 <p className="text-sm text-[#737373] text-center">
                   Precisa de ajuda? Entre em contato:
                 </p>
-                <a
-                  href="mailto:suporteplanejado@gmail.com"
-                  className="text-[#00bf63] hover:underline font-medium text-center block mt-2"
-                >
+                <p className="text-[#00bf63] font-medium text-center mt-2">
                   suporteplanejado@gmail.com
-                </a>
+                </p>
               </div>
             </div>
           )}
