@@ -29,6 +29,7 @@ interface User {
   id: string
   name: string | null
   email: string
+  phone: string | null
   role: string
   isActive: boolean
   hotmartId: string | null
@@ -48,6 +49,7 @@ export default function AdminClient() {
     email: '',
     name: '',
     password: '',
+    phone: '',
     role: 'user'
   })
 
@@ -102,7 +104,7 @@ export default function AdminClient() {
 
       toast.success('Usuário criado com sucesso!')
       setShowCreateDialog(false)
-      setNewUser({ email: '', name: '', password: '', role: 'user' })
+      setNewUser({ email: '', name: '', password: '', phone: '', role: 'user' })
       loadUsers()
     } catch (error: any) {
       toast.error(error.message)
@@ -282,7 +284,15 @@ export default function AdminClient() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-[#737373] text-sm truncate">{user.email}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                    <p className="text-[#737373] text-sm truncate">{user.email}</p>
+                    {user.phone && (
+                      <>
+                        <span className="hidden sm:inline text-[#737373]">•</span>
+                        <p className="text-[#737373] text-sm">{user.phone}</p>
+                      </>
+                    )}
+                  </div>
                   <p className="text-[#737373] text-xs mt-1">
                     {user._count.transactions} transações • Criado em{' '}
                     {new Date(user.createdAt).toLocaleDateString('pt-BR')}
@@ -373,6 +383,17 @@ export default function AdminClient() {
                 placeholder="Nome completo"
                 value={newUser.name}
                 onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                className="bg-black border-[#2a2a2a] text-white"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="phone" className="text-white">Telefone</Label>
+              <Input
+                id="phone"
+                placeholder="(11) 99999-9999"
+                value={newUser.phone}
+                onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
                 className="bg-black border-[#2a2a2a] text-white"
               />
             </div>

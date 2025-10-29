@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         isActive: true,
         hotmartId: true,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }
 
-    const { email, name, password, role } = await request.json()
+    const { email, name, password, phone, role } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json(
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
         email,
         name: name || email.split('@')[0],
         password: hashedPassword,
+        phone: phone || null,
         role: role || 'user',
         isActive: true
       },
@@ -107,6 +109,7 @@ export async function POST(request: NextRequest) {
         id: true,
         email: true,
         name: true,
+        phone: true,
         role: true,
         isActive: true,
         createdAt: true
