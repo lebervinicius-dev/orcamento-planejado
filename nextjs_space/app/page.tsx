@@ -64,8 +64,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Dashboard Preview Section */}
+      {/* Features Section */}
       <section className="max-w-6xl mx-auto px-4 py-12">
+        <h2 className="text-3xl font-bold text-white text-center mb-12">
+          Tudo que você precisa para organizar suas finanças
+        </h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="card animate-fade-in hover:shadow-2xl hover:shadow-[#00bf63]/10 transition-all group">
+            <div className="bg-[#00bf63]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#00bf63]/20 transition-colors">
+              <TrendingUp className="h-6 w-6 text-[#00bf63]" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">Gestão Completa</h3>
+            <p className="text-[#b0b0b0] leading-relaxed">
+              Registre suas receitas e despesas, organize por categorias personalizadas 
+              e tenha controle total sobre seu dinheiro.
+            </p>
+          </div>
+
+          <div className="card animate-fade-in hover:shadow-2xl hover:shadow-[#00bf63]/10 transition-all group" style={{animationDelay: '0.1s'}}>
+            <div className="bg-[#00bf63]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#00bf63]/20 transition-colors">
+              <BarChart3 className="h-6 w-6 text-[#00bf63]" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">Visualizações Inteligentes</h3>
+            <p className="text-[#b0b0b0] leading-relaxed">
+              Gráficos interativos mostram seus gastos por categoria, evolução do saldo 
+              e tendências mensais de forma clara e visual.
+            </p>
+          </div>
+
+          <div className="card animate-fade-in hover:shadow-2xl hover:shadow-[#00bf63]/10 transition-all group" style={{animationDelay: '0.2s'}}>
+            <div className="bg-[#00bf63]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#00bf63]/20 transition-colors">
+              <Brain className="h-6 w-6 text-[#00bf63]" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">Análises com IA</h3>
+            <p className="text-[#b0b0b0] leading-relaxed">
+              Receba insights semanais personalizados, identifique padrões de gasto 
+              e descubra oportunidades de economia automaticamente.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Dashboard Preview Section */}
+      <section className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-3xl font-bold text-white text-center mb-4">
           Veja como é o seu Dashboard
         </h2>
@@ -198,47 +239,6 @@ export default function HomePage() {
               <span>Começar Agora</span>
               <ArrowRight className="h-5 w-5" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <h2 className="text-3xl font-bold text-white text-center mb-12">
-          Tudo que você precisa para organizar suas finanças
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="card animate-fade-in hover:shadow-2xl hover:shadow-[#00bf63]/10 transition-all group">
-            <div className="bg-[#00bf63]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#00bf63]/20 transition-colors">
-              <TrendingUp className="h-6 w-6 text-[#00bf63]" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Gestão Completa</h3>
-            <p className="text-[#b0b0b0] leading-relaxed">
-              Registre suas receitas e despesas, organize por categorias personalizadas 
-              e tenha controle total sobre seu dinheiro.
-            </p>
-          </div>
-
-          <div className="card animate-fade-in hover:shadow-2xl hover:shadow-[#00bf63]/10 transition-all group" style={{animationDelay: '0.1s'}}>
-            <div className="bg-[#00bf63]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#00bf63]/20 transition-colors">
-              <BarChart3 className="h-6 w-6 text-[#00bf63]" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Visualizações Inteligentes</h3>
-            <p className="text-[#b0b0b0] leading-relaxed">
-              Gráficos interativos mostram seus gastos por categoria, evolução do saldo 
-              e tendências mensais de forma clara e visual.
-            </p>
-          </div>
-
-          <div className="card animate-fade-in hover:shadow-2xl hover:shadow-[#00bf63]/10 transition-all group" style={{animationDelay: '0.2s'}}>
-            <div className="bg-[#00bf63]/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#00bf63]/20 transition-colors">
-              <Brain className="h-6 w-6 text-[#00bf63]" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">Análises com IA</h3>
-            <p className="text-[#b0b0b0] leading-relaxed">
-              Receba insights semanais personalizados, identifique padrões de gasto 
-              e descubra oportunidades de economia automaticamente.
-            </p>
           </div>
         </div>
       </section>
