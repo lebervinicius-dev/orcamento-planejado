@@ -93,7 +93,7 @@ export function TransactionsClient({
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#000000]">Transações</h1>
+          <h1 className="text-3xl font-bold text-white">Transações</h1>
           <p className="text-[#737373] mt-1">
             Gerencie suas receitas e despesas
           </p>
@@ -117,10 +117,10 @@ export function TransactionsClient({
       {/* Filtros */}
       {isFilterOpen && (
         <div className="card bg-gray-50 animate-fade-in">
-          <h3 className="font-semibold text-[#000000] mb-4">Filtros</h3>
+          <h3 className="font-semibold text-white mb-4">Filtros</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-[#000000] mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Tipo
               </label>
               <select
@@ -135,7 +135,7 @@ export function TransactionsClient({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#000000] mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Categoria
               </label>
               <select
@@ -169,7 +169,7 @@ export function TransactionsClient({
         {transactions.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">💰</div>
-            <h3 className="text-lg font-semibold text-[#000000] mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               Nenhuma transação encontrada
             </h3>
             <p className="text-[#737373] mb-6">
@@ -201,7 +201,7 @@ export function TransactionsClient({
                   </div>
                   
                   <div>
-                    <h4 className="font-medium text-[#000000]">
+                    <h4 className="font-medium text-white">
                       {transaction.description}
                     </h4>
                     <div className="flex items-center space-x-2 text-sm text-[#737373]">

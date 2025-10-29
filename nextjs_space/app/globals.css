@@ -4,14 +4,15 @@
 @tailwind utilities;
 
 :root {
-  /* Cores da marca */
+  /* Cores da marca - Dark Mode */
   --primary: #00bf63; /* Verde principal */
   --primary-dark: #00a555;
   --secondary: #737373; /* Cinza */
-  --background: #f6f6f6; /* Cinza claro */
-  --foreground: #000000; /* Preto */
-  --muted: #f8f9fa;
-  --border: #e9ecef;
+  --background: #000000; /* Preto */
+  --foreground: #ffffff; /* Branco */
+  --muted: #1a1a1a;
+  --card-bg: #0d0d0d;
+  --border: #2a2a2a;
   --success: #00bf63;
   --danger: #dc3545;
   --warning: #ffc107;
@@ -29,23 +30,23 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-[#00bf63] hover:bg-[#00a555] text-white font-medium px-4 py-2 rounded-lg transition-colors;
+    @apply bg-[#00bf63] hover:bg-[#00a555] text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-lg shadow-[#00bf63]/20;
   }
   
   .btn-secondary {
-    @apply bg-[#737373] hover:bg-[#606060] text-white font-medium px-4 py-2 rounded-lg transition-colors;
+    @apply bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white font-medium px-4 py-2 rounded-lg transition-colors border border-[#2a2a2a];
   }
 
   .btn-outline {
-    @apply border border-[#00bf63] text-[#00bf63] hover:bg-[#00bf63] hover:text-white font-medium px-4 py-2 rounded-lg transition-colors;
+    @apply border-2 border-[#00bf63] text-[#00bf63] hover:bg-[#00bf63] hover:text-white font-medium px-4 py-2 rounded-lg transition-colors;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-[#e9ecef] p-6;
+    @apply bg-[#0d0d0d] rounded-lg shadow-xl border border-[#2a2a2a] p-6;
   }
 
   .input {
-    @apply w-full px-3 py-2 border border-[#e9ecef] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00bf63] focus:border-transparent;
+    @apply w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00bf63] focus:border-transparent placeholder-[#737373];
   }
 
   .text-primary {
@@ -61,7 +62,7 @@
   }
 
   .bg-secondary {
-    @apply bg-[#737373];
+    @apply bg-[#1a1a1a];
   }
 
   .border-primary {
@@ -88,18 +89,18 @@
   animation: slideIn 0.3s ease-out;
 }
 
-/* Scrollbar customizada */
+/* Scrollbar customizada - Dark Mode */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f6f6f6;
+  background: #0d0d0d;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #00bf63;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

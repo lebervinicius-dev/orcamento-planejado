@@ -101,7 +101,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#000000] mb-2">Dashboard Financeiro</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Dashboard Financeiro</h1>
           <p className="text-[#737373]">Resumo das suas finanças de {data.currentMonth}</p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -162,7 +162,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {/* Gráfico de Pizza - Receitas */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#000000] flex items-center space-x-2">
+            <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
               <PieChart className="h-5 w-5 text-[#00bf63]" />
               <span>Receitas por Categoria</span>
             </h3>
@@ -178,7 +178,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {/* Gráfico de Pizza - Despesas */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#000000] flex items-center space-x-2">
+            <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
               <PieChart className="h-5 w-5 text-red-600" />
               <span>Despesas por Categoria</span>
             </h3>
@@ -195,7 +195,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       {/* Gráfico de Linha - Saldo dos Últimos 12 Meses */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-[#000000] flex items-center space-x-2">
+          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
             <LineChart className="h-5 w-5 text-[#00bf63]" />
             <span>Evolução do Saldo - Últimos 12 Meses</span>
           </h3>
@@ -216,7 +216,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                 <Brain className="h-5 w-5 text-[#00bf63]" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#000000]">{data.latestAnalysis.title}</h3>
+                <h3 className="text-lg font-semibold text-white">{data.latestAnalysis.title}</h3>
                 <p className="text-sm text-[#737373]">
                   Gerada em {new Date(data.latestAnalysis.createdAt).toLocaleDateString('pt-BR')}
                 </p>
@@ -242,7 +242,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
               </div>
               <div className="text-center">
                 <p className="text-sm text-[#737373]">Maior Gasto</p>
-                <p className="text-lg font-semibold text-[#000000]">
+                <p className="text-lg font-semibold text-white">
                   {data.latestAnalysis.insights.topExpenseCategory || 'N/A'}
                 </p>
               </div>
@@ -276,7 +276,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {/* Receitas Recentes */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#000000]">Receitas Recentes</h3>
+            <h3 className="text-lg font-semibold text-white">Receitas Recentes</h3>
             <Link href="/dashboard/transactions?type=INCOME" className="text-[#00bf63] hover:underline text-sm">
               Ver todas
             </Link>
@@ -285,7 +285,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
             {data.monthlyIncome?.slice(0, 5).map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
                 <div>
-                  <p className="font-medium text-[#000000]">{transaction.description}</p>
+                  <p className="font-medium text-white">{transaction.description}</p>
                   <p className="text-sm text-[#737373]">{transaction.category?.name}</p>
                 </div>
                 <div className="text-right">
@@ -306,7 +306,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         {/* Despesas Recentes */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#000000]">Despesas Recentes</h3>
+            <h3 className="text-lg font-semibold text-white">Despesas Recentes</h3>
             <Link href="/dashboard/transactions?type=EXPENSE" className="text-[#00bf63] hover:underline text-sm">
               Ver todas
             </Link>
@@ -315,7 +315,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
             {data.monthlyExpenses?.slice(0, 5).map((transaction) => (
               <div key={transaction.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
                 <div>
-                  <p className="font-medium text-[#000000]">{transaction.description}</p>
+                  <p className="font-medium text-white">{transaction.description}</p>
                   <p className="text-sm text-[#737373]">{transaction.category?.name}</p>
                 </div>
                 <div className="text-right">

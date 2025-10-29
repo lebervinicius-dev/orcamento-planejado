@@ -116,7 +116,7 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
         {/* Tipo */}
         <div>
-          <label className="block text-sm font-medium text-[#000000] mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             Tipo de Transação
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -149,7 +149,7 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
         {/* Valor */}
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-[#000000] mb-2">
+          <label htmlFor="amount" className="block text-sm font-medium text-white mb-2">
             Valor (R$)
           </label>
           <div className="relative">
@@ -171,7 +171,7 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
         {/* Descrição */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-[#000000] mb-2">
+          <label htmlFor="description" className="block text-sm font-medium text-white mb-2">
             Descrição
           </label>
           <div className="relative">
@@ -190,7 +190,7 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
         {/* Data */}
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-[#000000] mb-2">
+          <label htmlFor="date" className="block text-sm font-medium text-white mb-2">
             Data
           </label>
           <div className="relative">
@@ -209,7 +209,7 @@ export function TransactionForm({ categories, mode, transaction }: TransactionFo
 
         {/* Categoria */}
         <div>
-          <label htmlFor="categoryId" className="block text-sm font-medium text-[#000000] mb-2">
+          <label htmlFor="categoryId" className="block text-sm font-medium text-white mb-2">
             Categoria
           </label>
           <div className="relative">

@@ -80,7 +80,7 @@ export function CategoryModal({ category, type, onClose, onSuccess }: CategoryMo
       <div className="bg-white rounded-lg max-w-md w-full p-6 animate-fade-in">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-[#000000] flex items-center space-x-2">
+          <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
             <Tag className="h-5 w-5 text-[#00bf63]" />
             <span>
               {category ? 'Editar' : 'Nova'} Categoria {type === 'INCOME' ? 'de Receita' : 'de Despesa'}
@@ -104,7 +104,7 @@ export function CategoryModal({ category, type, onClose, onSuccess }: CategoryMo
 
           {/* Nome */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-[#000000] mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-white mb-2">
               Nome da Categoria
             </label>
             <input
@@ -124,7 +124,7 @@ export function CategoryModal({ category, type, onClose, onSuccess }: CategoryMo
 
           {/* Cor */}
           <div>
-            <label className="block text-sm font-medium text-[#000000] mb-2 flex items-center space-x-2">
+            <label className="block text-sm font-medium text-white mb-2 flex items-center space-x-2">
               <Palette className="h-4 w-4" />
               <span>Cor</span>
             </label>
@@ -150,13 +150,13 @@ export function CategoryModal({ category, type, onClose, onSuccess }: CategoryMo
 
           {/* Preview */}
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium text-[#000000] mb-2">Preview:</p>
+            <p className="text-sm font-medium text-white mb-2">Preview:</p>
             <div className="flex items-center space-x-3">
               <div
                 className="w-4 h-4 rounded-full border-2 border-gray-200"
                 style={{ backgroundColor: selectedColor }}
               />
-              <span className="font-medium text-[#000000]">
+              <span className="font-medium text-white">
                 {name || 'Nome da categoria'}
               </span>
               <span className={`text-sm px-2 py-1 rounded-full ${

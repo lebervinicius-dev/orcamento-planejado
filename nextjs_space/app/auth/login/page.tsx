@@ -40,29 +40,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f6f6f6] to-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-black via-[#0d0d0d] to-black flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <DollarSign className="h-10 w-10 text-[#00bf63]" />
-            <span className="text-2xl font-bold text-[#000000]">Orçamento Planejado</span>
+            <span className="text-2xl font-bold text-white">Orçamento Planejado</span>
           </div>
-          <h1 className="text-3xl font-bold text-[#000000] mb-2">Entre na sua conta</h1>
-          <p className="text-[#737373]">Gerencie suas finanças de forma inteligente</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Entre na sua conta</h1>
+          <p className="text-[#b0b0b0]">Gerencie suas finanças de forma inteligente</p>
         </div>
 
         {/* Form */}
         <div className="card animate-fade-in" style={{animationDelay: '0.1s'}}>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-slide-in">
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg animate-slide-in">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#000000] mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
                 Email
               </label>
               <div className="relative">
@@ -80,7 +80,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#000000] mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
                 Senha
               </label>
               <div className="relative">
@@ -112,27 +112,18 @@ export default function LoginPage() {
               {isLoading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-[#737373]">
-              Não tem uma conta?{' '}
-              <Link href="/auth/register" className="text-[#00bf63] hover:underline font-medium">
-                Criar conta grátis
-              </Link>
-            </p>
-          </div>
         </div>
 
         {/* Demo Info */}
-        <div className="mt-6 p-4 bg-[#00bf63]/5 border border-[#00bf63]/20 rounded-lg animate-fade-in" style={{animationDelay: '0.2s'}}>
-          <p className="text-sm text-[#00bf63] text-center">
+        <div className="mt-6 p-4 bg-[#00bf63]/10 border border-[#00bf63]/30 rounded-lg animate-fade-in" style={{animationDelay: '0.2s'}}>
+          <p className="text-sm text-[#00bf63] text-center font-medium">
             <strong>Demo:</strong> Use john@doe.com / johndoe123 para testar
           </p>
         </div>
 
         {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-[#737373] hover:text-[#00bf63] transition-colors">
+          <Link href="/" className="text-[#b0b0b0] hover:text-[#00bf63] transition-colors">
             ← Voltar ao início
           </Link>
         </div>

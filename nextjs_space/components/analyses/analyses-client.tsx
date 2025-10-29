@@ -74,7 +74,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#000000] flex items-center space-x-2">
+          <h1 className="text-3xl font-bold text-white flex items-center space-x-2">
             <Brain className="h-8 w-8 text-[#00bf63]" />
             <span>Análises com IA</span>
           </h1>
@@ -98,7 +98,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
       {analyses.length === 0 ? (
         <div className="card text-center py-12">
           <div className="text-6xl mb-4">🤖</div>
-          <h3 className="text-xl font-semibold text-[#000000] mb-2">
+          <h3 className="text-xl font-semibold text-white mb-2">
             {hasTransactions ? 'Nenhuma análise gerada ainda' : 'Precisa de dados para análise'}
           </h3>
           <p className="text-[#737373] mb-6 max-w-md mx-auto">
@@ -135,7 +135,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                 {/* Cabeçalho da Análise */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#000000] mb-2">
+                    <h3 className="text-lg font-semibold text-white mb-2">
                       {analysis.title}
                     </h3>
                     <div className="flex items-center space-x-4 text-sm text-[#737373]">
@@ -229,7 +229,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                   <div className="border-t border-gray-100 pt-4 mt-4">
                     <div className="prose prose-sm max-w-none">
                       <div 
-                        className="text-[#000000] leading-relaxed whitespace-pre-wrap"
+                        className="text-white leading-relaxed whitespace-pre-wrap"
                         dangerouslySetInnerHTML={{ 
                           __html: analysis.content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
                         }}

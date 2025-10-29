@@ -64,7 +64,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#000000]">Categorias</h1>
+          <h1 className="text-3xl font-bold text-white">Categorias</h1>
           <p className="text-[#737373] mt-1">
             Organize suas receitas e despesas
           </p>
@@ -106,7 +106,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
       {/* Conteúdo das Tabs */}
       <div className="card">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-[#000000] flex items-center space-x-2">
+          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
             {activeTab === 'INCOME' ? (
               <>
                 <TrendingUp className="h-5 w-5 text-[#00bf63]" />
@@ -143,7 +143,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
                   }}
                 />
                 <div>
-                  <h4 className="font-medium text-[#000000]">{category.name}</h4>
+                  <h4 className="font-medium text-white">{category.name}</h4>
                   <p className="text-sm text-[#737373]">
                     {category._count.transactions} transação{category._count.transactions !== 1 ? 'ões' : ''}
                   </p>
@@ -174,7 +174,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
               <div className="text-6xl mb-4">
                 {activeTab === 'INCOME' ? '💰' : '💸'}
               </div>
-              <h3 className="text-lg font-semibold text-[#000000] mb-2">
+              <h3 className="text-lg font-semibold text-white mb-2">
                 Nenhuma categoria de {activeTab === 'INCOME' ? 'receita' : 'despesa'}
               </h3>
               <p className="text-[#737373] mb-6">

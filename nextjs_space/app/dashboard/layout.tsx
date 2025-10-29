@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-[#f6f6f6]">
+      <div className="min-h-screen bg-black">
         <DashboardNav />
         <main className="max-w-7xl mx-auto px-4 py-6">
           {children}

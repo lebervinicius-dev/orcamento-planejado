@@ -35,13 +35,13 @@ export function DashboardNav() {
   }
 
   return (
-    <nav className="bg-white border-b border-[#e9ecef] sticky top-0 z-50">
+    <nav className="bg-[#0d0d0d] border-b border-[#2a2a2a] sticky top-0 z-50 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center space-x-2">
             <DollarSign className="h-8 w-8 text-[#00bf63]" />
-            <span className="text-xl font-bold text-[#000000] hidden sm:block">
+            <span className="text-xl font-bold text-white hidden sm:block">
               Orçamento Planejado
             </span>
           </Link>
@@ -57,8 +57,8 @@ export function DashboardNav() {
                   href={item.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-colors ${
                     isActive
-                      ? 'bg-[#00bf63] text-white'
-                      : 'text-[#737373] hover:text-[#00bf63] hover:bg-[#00bf63]/5'
+                      ? 'bg-[#00bf63] text-white shadow-lg shadow-[#00bf63]/20'
+                      : 'text-[#b0b0b0] hover:text-[#00bf63] hover:bg-[#00bf63]/10'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -70,13 +70,13 @@ export function DashboardNav() {
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-[#737373]">
+            <div className="flex items-center space-x-2 text-[#b0b0b0]">
               <User className="h-4 w-4" />
               <span className="text-sm">{session?.user?.name}</span>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-2 text-[#737373] hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-red-50"
+              className="flex items-center space-x-2 text-[#b0b0b0] hover:text-red-500 transition-colors px-3 py-2 rounded-lg hover:bg-red-500/10"
             >
               <LogOut className="h-4 w-4" />
               <span>Sair</span>
@@ -86,19 +86,19 @@ export function DashboardNav() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-[#1a1a1a] transition-colors"
           >
             {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-[#737373]" />
+              <X className="h-6 w-6 text-[#b0b0b0]" />
             ) : (
-              <Menu className="h-6 w-6 text-[#737373]" />
+              <Menu className="h-6 w-6 text-[#b0b0b0]" />
             )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-[#e9ecef] py-4 animate-fade-in">
+          <div className="md:hidden border-t border-[#2a2a2a] py-4 animate-fade-in">
             <div className="space-y-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
@@ -110,8 +110,8 @@ export function DashboardNav() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#00bf63] text-white'
-                        : 'text-[#737373] hover:text-[#00bf63] hover:bg-[#00bf63]/5'
+                        ? 'bg-[#00bf63] text-white shadow-lg shadow-[#00bf63]/20'
+                        : 'text-[#b0b0b0] hover:text-[#00bf63] hover:bg-[#00bf63]/10'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -120,14 +120,14 @@ export function DashboardNav() {
                 )
               })}
               
-              <div className="border-t border-[#e9ecef] pt-4 mt-4">
-                <div className="flex items-center space-x-2 px-4 py-2 text-[#737373]">
+              <div className="border-t border-[#2a2a2a] pt-4 mt-4">
+                <div className="flex items-center space-x-2 px-4 py-2 text-[#b0b0b0]">
                   <User className="h-4 w-4" />
                   <span className="text-sm">{session?.user?.name}</span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 w-full text-left px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Sair</span>
