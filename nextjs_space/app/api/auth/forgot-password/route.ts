@@ -1,17 +1,14 @@
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
 
     if (!email) {
-      return NextResponse.json(
-        { error: 'Email é obrigatório' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Email é obrigatório' }, { status: 400 })
     }
 
     // Buscar usuário
@@ -19,29 +16,44 @@ export async function POST(request: Request) {
       where: { email },
     })
 
+    // Sempre retorna sucesso (por segurança, não revelar se o email existe)
     if (!user) {
-      // Por segurança, não revelar que o email não existe
-      return NextResponse.json(
-        { message: 'Se o email existir, a senha foi resetada para 12345678' },
-        { status: 200 }
-      )
+      return NextResponse.json({
+        message: 'Se o email existir, você receberá um link de recuperação.',
+      })
     }
 
-    // Resetar senha para 12345678
-    const hashedPassword = await bcrypt.hash('12345678', 10)
+    // Gerar token único
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hora
+
+    // Salvar token no banco
     await prisma.user.update({
-      where: { email },
-      data: { password: hashedPassword },
+      where: { id: user.id },
+      data: {
+        resetToken,
+        resetTokenExpiry,
+      },
     })
 
-    return NextResponse.json(
-      { message: 'Senha resetada para 12345678. Por favor, faça login e altere sua senha.' },
-      { status: 200 }
-    )
+    // Em produção, enviar email aqui
+    // Por enquanto, vamos logar o link no console
+    const resetLink = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`
+    
+    console.log('\n🔐 LINK DE RECUPERAÇÃO DE SENHA:')
+    console.log(`Email: ${email}`)
+    console.log(`Link: ${resetLink}`)
+    console.log(`Expira em: ${resetTokenExpiry.toLocaleString('pt-BR')}\n`)
+
+    return NextResponse.json({
+      message: 'Se o email existir, você receberá um link de recuperação.',
+      // Em desenvolvimento, retornar o link
+      ...(process.env.NODE_ENV === 'development' && { resetLink }),
+    })
   } catch (error) {
-    console.error('Erro ao resetar senha:', error)
+    console.error('Erro ao solicitar recuperação de senha:', error)
     return NextResponse.json(
-      { error: 'Erro ao resetar senha' },
+      { error: 'Erro ao processar solicitação' },
       { status: 500 }
     )
   }

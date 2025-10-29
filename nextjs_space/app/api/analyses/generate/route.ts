@@ -23,6 +23,29 @@ export async function POST(request: NextRequest) {
     // Última data do mês
     const endDate = new Date(year, month, 0, 23, 59, 59)
 
+    // Verificar se já existe análise gerada hoje
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const existingAnalysisToday = await prisma.aiAnalysis.findFirst({
+      where: {
+        userId,
+        createdAt: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+    })
+
+    if (existingAnalysisToday) {
+      return NextResponse.json(
+        { error: 'Você já gerou uma análise hoje. Tente novamente amanhã!' },
+        { status: 400 }
+      )
+    }
+
     // Buscar transações do mês atual
     const transactions = await prisma.transaction.findMany({
       where: {

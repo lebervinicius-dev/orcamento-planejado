@@ -55,49 +55,14 @@ export async function PUT(request: Request) {
       )
     }
 
-    const { name, phone, password, currentPassword } = await request.json()
+    const { name, phone, password } = await request.json()
 
-    // Se está alterando senha, precisa do telefone e da senha atual
+    // Se está alterando senha
     if (password) {
-      if (!phone) {
-        return NextResponse.json(
-          { error: 'Telefone é obrigatório para alterar a senha' },
-          { status: 400 }
-        )
-      }
-
-      if (!currentPassword) {
-        return NextResponse.json(
-          { error: 'Senha atual é obrigatória para alterar a senha' },
-          { status: 400 }
-        )
-      }
-
-      // Verificar senha atual
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-      })
-
-      if (!user || !user.password) {
-        return NextResponse.json(
-          { error: 'Usuário não encontrado' },
-          { status: 404 }
-        )
-      }
-
-      const isValidPassword = await bcrypt.compare(currentPassword, user.password)
-
-      if (!isValidPassword) {
-        return NextResponse.json(
-          { error: 'Senha atual incorreta' },
-          { status: 400 }
-        )
-      }
-
       // Hash da nova senha
       const hashedPassword = await bcrypt.hash(password, 10)
 
-      // Atualizar usuário com nova senha e telefone
+      // Atualizar usuário com nova senha
       await prisma.user.update({
         where: { id: session.user.id },
         data: {

@@ -48,6 +48,8 @@ model User {
   role          String    @default("user") // "user" ou "admin"
   isActive      Boolean   @default(true) // Controle de acesso
   hotmartId     String?   @unique // ID da transação Hotmart para rastreamento
+  resetToken    String?   // Token para recuperação de senha
+  resetTokenExpiry DateTime? // Expiração do token de recuperação
   accounts      Account[]
   sessions      Session[]
 

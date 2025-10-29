@@ -68,16 +68,6 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
     // Se está alterando senha
     if (newPassword) {
-      if (!phone.trim()) {
-        toast.error('Telefone é requisito para alterar senha')
-        return
-      }
-
-      if (!currentPassword) {
-        toast.error('Senha atual é obrigatória para alterar a senha')
-        return
-      }
-
       if (newPassword.length < 8) {
         toast.error('A nova senha deve ter no mínimo 8 caracteres')
         return
@@ -205,7 +195,7 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               {/* Telefone */}
               <div>
                 <label className="block text-sm font-medium text-white mb-2">
-                  Telefone {newPassword && <span className="text-red-500">*</span>}
+                  Telefone
                 </label>
                 <div className="relative">
                   <Phone className="h-5 w-5 text-[#737373] absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -217,36 +207,14 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                     placeholder="(00) 00000-0000"
                   />
                 </div>
-                {newPassword && (
-                  <p className="text-xs text-yellow-500 mt-1">
-                    ⚠️ Telefone é requisito para alterar senha
-                  </p>
-                )}
               </div>
 
               {/* Divider */}
               <div className="border-t border-[#2a2a2a] pt-4">
                 <h3 className="text-lg font-semibold text-white mb-4">Alterar Senha</h3>
                 <p className="text-sm text-[#737373] mb-4">
-                  Para alterar sua senha, preencha os campos abaixo. Telefone é requisito para alterar senha.
+                  Para alterar sua senha, preencha os campos abaixo.
                 </p>
-              </div>
-
-              {/* Senha Atual */}
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Senha Atual
-                </label>
-                <div className="relative">
-                  <Lock className="h-5 w-5 text-[#737373] absolute left-3 top-1/2 transform -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="input pl-10"
-                    placeholder="Sua senha atual"
-                  />
-                </div>
               </div>
 
               {/* Nova Senha */}

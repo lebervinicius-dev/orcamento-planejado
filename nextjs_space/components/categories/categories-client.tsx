@@ -72,7 +72,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 max-w-md">
+      <div className="flex space-x-1 bg-[#1a1a1a] rounded-lg p-1 max-w-md">
         <button
           onClick={() => setActiveTab('EXPENSE')}
           className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-md font-medium transition-all ${
