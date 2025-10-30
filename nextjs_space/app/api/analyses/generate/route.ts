@@ -69,12 +69,12 @@ export async function POST(request: NextRequest) {
 
     // Calcular métricas
     const income = transactions
-      .filter((t) => t.type === 'INCOME')
-      .reduce((sum, t) => sum + Number(t.amount), 0)
+      .filter((t: any) => t.type === 'INCOME')
+      .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
 
     const expenses = transactions
-      .filter((t) => t.type === 'EXPENSE')
-      .reduce((sum, t) => sum + Number(t.amount), 0)
+      .filter((t: any) => t.type === 'EXPENSE')
+      .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
 
     const balance = income - expenses
 
@@ -91,41 +91,41 @@ export async function POST(request: NextRequest) {
     // Top categorias de renda
     const incomeByCategory: Record<string, number> = {}
     transactions
-      .filter((t) => t.type === 'INCOME')
-      .forEach((t) => {
+      .filter((t: any) => t.type === 'INCOME')
+      .forEach((t: any) => {
         const catName = t.category?.name || 'Sem categoria'
         incomeByCategory[catName] = (incomeByCategory[catName] || 0) + Number(t.amount)
       })
 
     const topIncomeCategories = Object.entries(incomeByCategory)
-      .sort(([, a], [, b]) => b - a)
+      .sort(([, a]: any, [, b]: any) => b - a)
       .slice(0, 3)
-      .map(([categoria, total]) => ({ categoria, total }))
+      .map(([categoria, total]: any) => ({ categoria, total }))
 
     // Top categorias de despesa
     const expenseByCategory: Record<string, number> = {}
     transactions
-      .filter((t) => t.type === 'EXPENSE')
-      .forEach((t) => {
+      .filter((t: any) => t.type === 'EXPENSE')
+      .forEach((t: any) => {
         const catName = t.category?.name || 'Sem categoria'
         expenseByCategory[catName] = (expenseByCategory[catName] || 0) + Number(t.amount)
       })
 
     const topExpenseCategories = Object.entries(expenseByCategory)
-      .sort(([, a], [, b]: [string, number]) => b - a)
+      .sort(([, a]: any, [, b]: any) => b - a)
       .slice(0, 5)
-      .map(([categoria, total]) => ({ categoria, total }))
+      .map(([categoria, total]: any) => ({ categoria, total }))
 
     // Outliers (transações > 2x a média diária de despesa)
     const avgExpensePerTransaction =
-      expenses / transactions.filter((t) => t.type === 'EXPENSE').length || 0
+      expenses / transactions.filter((t: any) => t.type === 'EXPENSE').length || 0
     const threshold = avgExpensePerTransaction * 2
 
     const outliers = transactions
-      .filter((t) => t.type === 'EXPENSE' && Number(t.amount) > threshold)
-      .sort((a, b) => Number(b.amount) - Number(a.amount))
+      .filter((t: any) => t.type === 'EXPENSE' && Number(t.amount) > threshold)
+      .sort((a: any, b: any) => Number(b.amount) - Number(a.amount))
       .slice(0, 3)
-      .map((t) => ({
+      .map((t: any) => ({
         descricao: t.description,
         categoria: t.category?.name || 'Sem categoria',
         valor: Number(t.amount),
