@@ -89,6 +89,90 @@ export async function sendWelcomeEmail(to: string, name: string, email: string, 
   }
 }
 
+export async function sendCancellationEmail(to: string, name: string, reason: 'refunded' | 'cancelled') {
+  const reasonText = reason === 'refunded' 
+    ? 'reembolso da sua compra' 
+    : 'cancelamento da sua assinatura';
+  
+  try {
+    console.log('📧 Iniciando envio de email de cancelamento...');
+    console.log('  → Para:', to);
+    console.log('  → Nome:', name);
+    console.log('  → Motivo:', reason);
+    
+    const result = await transporter.sendMail({
+      from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
+      to,
+      subject: `Sua assinatura do ${APP_NAME} foi cancelada`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: #dc3545; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+              .content { background: #f6f6f6; padding: 30px; border-radius: 0 0 8px 8px; }
+              .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc3545; }
+              .button { display: inline-block; background: #00bf63; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+              .footer { text-align: center; color: #737373; font-size: 12px; margin-top: 30px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1 style="margin: 0;">😔 Assinatura Cancelada</h1>
+              </div>
+              <div class="content">
+                <p><strong>Olá, ${name}!</strong></p>
+                
+                <p>Recebemos a confirmação do <strong>${reasonText}</strong> e seu acesso ao ${APP_NAME} foi desativado.</p>
+                
+                <div class="info-box">
+                  <h3 style="margin-top: 0; color: #dc3545;">📋 O que isso significa:</h3>
+                  <ul style="margin: 10px 0;">
+                    <li>Seu acesso ao app foi <strong>bloqueado</strong></li>
+                    <li>Você não poderá mais fazer login</li>
+                    <li>Seus dados serão mantidos por 90 dias</li>
+                  </ul>
+                </div>
+                
+                <p><strong>💚 Sentiremos sua falta!</strong></p>
+                <p>Se mudou de ideia ou teve algum problema, adoraríamos ter você de volta!</p>
+                
+                <div style="text-align: center;">
+                  <a href="${process.env.NEXTAUTH_URL || 'https://orcamento-planejado.abacusai.app'}" class="button">
+                    Quero assinar novamente
+                  </a>
+                </div>
+                
+                <p style="margin-top: 30px;">Qualquer dúvida, estamos à disposição em <strong>suporteplanejado@gmail.com</strong></p>
+                <p>Obrigado por ter feito parte da nossa comunidade! 💚</p>
+                <p>Equipe ${APP_NAME}</p>
+              </div>
+              
+              <div class="footer">
+                <p>© 2025 ${APP_NAME}. Todos os direitos reservados.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+    
+    console.log('✅ Email de cancelamento enviado com sucesso!');
+    console.log('  → MessageID:', result.messageId);
+    
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ ERRO ao enviar email de cancelamento:');
+    console.error('  → Error:', error);
+    console.error('  → Stack:', (error as Error).stack);
+    return { success: false, error };
+  }
+}
+
 export async function sendPasswordResetEmail(to: string, resetToken: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL || 'https://orcamento-planejado.abacusai.app'}/auth/reset-password?token=${resetToken}`;
   

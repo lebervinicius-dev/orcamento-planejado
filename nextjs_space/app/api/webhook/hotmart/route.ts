@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { sendWelcomeEmail } from '@/lib/email'
+import { sendWelcomeEmail, sendCancellationEmail } from '@/lib/email'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
@@ -132,11 +132,15 @@ export async function POST(request: NextRequest) {
       if (existingUser) {
         console.log('👤 Usuário já existe, reativando acesso:', email)
         
-        // Reativar usuário se estava inativo
-        if (!existingUser.isActive) {
+        // Reativar usuário se estava inativo ou cancelado
+        if (existingUser.status !== 'ACTIVE') {
           await prisma.user.update({
             where: { email },
-            data: { isActive: true }
+            data: { 
+              status: 'ACTIVE',
+              isActive: true,
+              canceledAt: null
+            }
           })
           console.log('✅ Acesso reativado para:', email)
         }
@@ -158,6 +162,7 @@ export async function POST(request: NextRequest) {
           name,
           password: hashedPassword,
           role: 'user',
+          status: 'ACTIVE',
           isActive: true,
           firstLogin: true, // Forçar troca de senha no primeiro login
           hotmartId: transactionId || `hotmart_${Date.now()}`,
@@ -192,25 +197,39 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Desativar usuário
+      // Buscar usuário
       const user = await prisma.user.findUnique({
         where: { email }
       })
 
       if (user) {
+        // Cancelar acesso do usuário
         await prisma.user.update({
           where: { email },
-          data: { isActive: false }
+          data: { 
+            status: 'CANCELED',
+            isActive: false,
+            canceledAt: new Date()
+          }
         })
-        console.log(`🚫 Acesso desativado para: ${email} (motivo: ${eventType})`)
+        console.log(`🚫 Acesso cancelado para: ${email} (motivo: ${eventType})`)
+        
+        // Enviar email de cancelamento
+        try {
+          await sendCancellationEmail(email, user.name || 'Cliente', eventType)
+          console.log('📧 Email de cancelamento enviado para:', email)
+        } catch (emailError) {
+          console.error('⚠️ Erro ao enviar email de cancelamento:', emailError)
+          // Não falha o webhook se o email não enviar
+        }
         
         return NextResponse.json({
           success: true,
-          message: `Acesso desativado devido a ${eventType}`,
+          message: `Acesso cancelado devido a ${eventType}`,
           userId: user.id
         })
       } else {
-        console.log('⚠️ Usuário não encontrado para desativar:', email)
+        console.log('⚠️ Usuário não encontrado para cancelar:', email)
         return NextResponse.json({
           message: 'Usuário não encontrado',
           email

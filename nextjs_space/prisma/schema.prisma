@@ -38,19 +38,20 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String     @unique
   emailVerified DateTime?
   image         String?
-  password      String?   // Para autenticação email/senha
-  phone         String?   // Telefone do usuário
-  role          String    @default("user") // "user" ou "admin"
-  isActive      Boolean   @default(true) // Controle de acesso
-  hotmartId     String?   @unique // ID da transação Hotmart para rastreamento
-  resetToken    String?   // Token para recuperação de senha
+  password      String?    // Para autenticação email/senha
+  phone         String?    // Telefone do usuário
+  role          String     @default("user") // "user" ou "admin"
+  status        UserStatus @default(ACTIVE) // Status da assinatura
+  isActive      Boolean    @default(true) // Controle de acesso (legado - usar status)
+  hotmartId     String?    @unique // ID da transação Hotmart para rastreamento
+  resetToken    String?    // Token para recuperação de senha
   resetTokenExpiry DateTime? // Expiração do token de recuperação
-  firstLogin    Boolean   @default(true) // Flag para forçar troca de senha no primeiro login
+  firstLogin    Boolean    @default(true) // Flag para forçar troca de senha no primeiro login
   accounts      Account[]
   sessions      Session[]
 
@@ -61,6 +62,7 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  canceledAt DateTime? // Data do cancelamento
 }
 
 model VerificationToken {
@@ -130,4 +132,10 @@ model AiAnalysis {
 enum TransactionType {
   INCOME  // Receita/Entrada
   EXPENSE // Despesa/Saída
+}
+
+enum UserStatus {
+  ACTIVE    // Usuário ativo e com acesso liberado
+  SUSPENDED // Usuário temporariamente suspenso (pode ser reativado)
+  CANCELED  // Assinatura cancelada (reembolso ou cancelamento definitivo)
 }

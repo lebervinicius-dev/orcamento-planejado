@@ -26,3 +26,16 @@ export type DateRange = {
   from: Date | undefined
   to: Date | undefined
 }
+
+// User Status Enum (espelha o enum do Prisma)
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  CANCELED = 'CANCELED'
+}
+
+// Transaction Type Enum (espelha o enum do Prisma)
+export enum TransactionType {
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE'
+}
