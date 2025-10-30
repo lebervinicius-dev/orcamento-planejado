@@ -1,8 +1,14 @@
 
-import { PrismaClient, TransactionType } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import bcryptjs from 'bcryptjs'
 
 const prisma = new PrismaClient()
+
+// Define TransactionType enum locally
+enum TransactionType {
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE'
+}
 
 async function main() {
   console.log('🌱 Iniciando seed do banco de dados...')
