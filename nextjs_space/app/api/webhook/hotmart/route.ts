@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { UserStatus } from '@prisma/client'
 import { sendWelcomeEmail, sendCancellationEmail } from '@/lib/email'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
@@ -133,11 +134,11 @@ export async function POST(request: NextRequest) {
         console.log('👤 Usuário já existe, reativando acesso:', email)
         
         // Reativar usuário se estava inativo ou cancelado
-        if (existingUser.status !== 'ACTIVE') {
+        if (existingUser.status !== UserStatus.ACTIVE) {
           await prisma.user.update({
             where: { email },
             data: { 
-              status: 'ACTIVE',
+              status: UserStatus.ACTIVE,
               isActive: true,
               canceledAt: null
             }
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
         await prisma.user.update({
           where: { email },
           data: { 
-            status: 'CANCELED',
+            status: UserStatus.CANCELED,
             isActive: false,
             canceledAt: new Date()
           }
