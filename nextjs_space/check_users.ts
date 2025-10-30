@@ -1,6 +1,14 @@
-import { PrismaClient, User } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
+
+type User = {
+  id: string
+  name: string | null
+  email: string
+  createdAt: Date
+  hotmartId: string | null
+}
 
 async function main() {
   const users = await prisma.user.findMany({
