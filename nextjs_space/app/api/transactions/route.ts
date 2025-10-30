@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
     const totalTransactions = await prisma.transaction.count({ where })
 
     return NextResponse.json({
-      transactions: transactions.map(t => ({
+      transactions: transactions.map((t: any) => ({
         ...t,
         amount: Number(t.amount),
       })),
