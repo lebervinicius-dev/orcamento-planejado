@@ -125,11 +125,11 @@ export default async function DashboardPage({
   // Transformar dados para o cliente
   const selectedDate = new Date(currentYear, currentMonth, 1)
   const dashboardData = {
-    monthlyIncome: monthlyIncome.map(transaction => ({
+    monthlyIncome: monthlyIncome.map((transaction: any) => ({
       ...transaction,
       amount: Number(transaction.amount),
     })),
-    monthlyExpenses: monthlyExpenses.map(transaction => ({
+    monthlyExpenses: monthlyExpenses.map((transaction: any) => ({
       ...transaction,
       amount: Number(transaction.amount),
     })),

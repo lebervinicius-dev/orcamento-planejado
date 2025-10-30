@@ -29,7 +29,7 @@ export default async function AnalysesPage() {
     },
   })
 
-  const transformedAnalyses = analyses.map(analysis => ({
+  const transformedAnalyses = analyses.map((analysis: any) => ({
     ...analysis,
     insights: JSON.parse(analysis.insights),
   }))

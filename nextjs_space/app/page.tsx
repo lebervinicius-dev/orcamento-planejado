@@ -255,7 +255,7 @@ export default function HomePage() {
           </p>
           <div className="flex items-center justify-center space-x-2 mb-8">
             <div className="flex space-x-1">
-              {[...Array(5)].map((_, i) => (
+              {[...Array(5)].map((_: any, i: number) => (
                 <Star key={i} className="h-5 w-5 fill-current text-yellow-400" />
               ))}
             </div>

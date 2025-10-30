@@ -65,7 +65,7 @@ export default async function TransactionsPage({
     },
   })
 
-  const transformedTransactions = transactions.map(t => ({
+  const transformedTransactions = transactions.map((t: any) => ({
     ...t,
     amount: Number(t.amount),
   }))
