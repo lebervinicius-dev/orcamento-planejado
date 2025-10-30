@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, User } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -15,7 +15,7 @@ async function main() {
     console.log('❌ NENHUM usuário encontrado no banco!')
     console.log('⚠️  Isso significa que o webhook NÃO foi chamado pela Hotmart')
   } else {
-    users.forEach((user, index) => {
+    users.forEach((user: User, index: number) => {
       console.log(`\n${index + 1}. ${user.name}`)
       console.log(`   Email: ${user.email}`)
       console.log(`   Criado em: ${user.createdAt}`)
