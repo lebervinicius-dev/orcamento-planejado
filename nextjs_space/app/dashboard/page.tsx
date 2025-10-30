@@ -16,6 +16,16 @@ export default async function DashboardPage({
     redirect('/auth/login')
   }
 
+  // Verificar se é primeiro login e forçar troca de senha
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { firstLogin: true }
+  })
+
+  if (user?.firstLogin) {
+    redirect('/dashboard/first-login')
+  }
+
   // Buscar dados do usuário
   const currentDate = new Date()
   const currentMonth = searchParams.month ? parseInt(searchParams.month) : currentDate.getMonth()

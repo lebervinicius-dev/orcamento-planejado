@@ -50,6 +50,7 @@ model User {
   hotmartId     String?   @unique // ID da transação Hotmart para rastreamento
   resetToken    String?   // Token para recuperação de senha
   resetTokenExpiry DateTime? // Expiração do token de recuperação
+  firstLogin    Boolean   @default(true) // Flag para forçar troca de senha no primeiro login
   accounts      Account[]
   sessions      Session[]
 

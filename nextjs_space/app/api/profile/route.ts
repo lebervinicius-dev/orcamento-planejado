@@ -99,3 +99,57 @@ export async function PUT(request: Request) {
     )
   }
 }
+
+// PATCH para primeiro login (alterar senha temporária)
+export async function PATCH(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 401 }
+      )
+    }
+
+    const { newPassword, firstLogin } = await request.json()
+
+    if (!newPassword) {
+      return NextResponse.json(
+        { error: 'Nova senha é obrigatória' },
+        { status: 400 }
+      )
+    }
+
+    // Validar força da senha
+    if (newPassword.length < 8) {
+      return NextResponse.json(
+        { error: 'Senha deve ter no mínimo 8 caracteres' },
+        { status: 400 }
+      )
+    }
+
+    // Hash da nova senha
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    // Atualizar usuário
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        password: hashedPassword,
+        firstLogin: firstLogin !== undefined ? firstLogin : false,
+      },
+    })
+
+    return NextResponse.json(
+      { message: 'Senha alterada com sucesso' },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error('Erro ao alterar senha:', error)
+    return NextResponse.json(
+      { error: 'Erro ao alterar senha' },
+      { status: 500 }
+    )
+  }
+}
