@@ -1,3 +1,4 @@
+import 'server-only'
 import nodemailer from 'nodemailer';
 
 const APP_NAME = 'Orçamento Planejado';
