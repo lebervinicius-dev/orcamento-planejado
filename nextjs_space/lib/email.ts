@@ -11,14 +11,63 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Validar se o email é válido
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Retry logic para envio de emails
+async function sendEmailWithRetry(
+  mailOptions: any,
+  maxRetries: number = 3,
+  delay: number = 2000
+): Promise<any> {
+  let lastError: any;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`📤 Tentativa ${attempt}/${maxRetries} de envio...`);
+      const result = await transporter.sendMail(mailOptions);
+      console.log(`✅ Email enviado com sucesso na tentativa ${attempt}`);
+      return { success: true, result };
+    } catch (error: any) {
+      lastError = error;
+      console.error(`❌ Falha na tentativa ${attempt}/${maxRetries}:`, error.message);
+      
+      // Se não for a última tentativa, aguardar antes de tentar novamente
+      if (attempt < maxRetries) {
+        console.log(`⏳ Aguardando ${delay}ms antes da próxima tentativa...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2; // Exponential backoff
+      }
+    }
+  }
+  
+  // Se todas as tentativas falharam
+  console.error(`💥 Todas as ${maxRetries} tentativas falharam`);
+  return { success: false, error: lastError };
+}
+
 export async function sendWelcomeEmail(to: string, name: string, email: string, password: string) {
   try {
-    console.log('📧 Iniciando envio de email de boas-vindas...');
+    console.log('\n' + '='.repeat(80));
+    console.log('📧 ENVIANDO EMAIL DE BOAS-VINDAS');
+    console.log('='.repeat(80));
     console.log('  → Para:', to);
     console.log('  → Nome:', name);
+    console.log('  → Email (credencial):', email);
     console.log('  → Configuração GMAIL_USER:', process.env.GMAIL_USER);
+    console.log('  → GMAIL_APP_PASSWORD configurado:', !!process.env.GMAIL_APP_PASSWORD);
+    console.log('='.repeat(80));
     
-    const result = await transporter.sendMail({
+    // Validar email
+    if (!isValidEmail(to)) {
+      console.error('❌ Email inválido:', to);
+      return { success: false, error: new Error('Email inválido') };
+    }
+    
+    const mailOptions = {
       from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
       to,
       subject: `🎉 Bem-vindo ao ${APP_NAME}!`,
@@ -75,16 +124,29 @@ export async function sendWelcomeEmail(to: string, name: string, email: string, 
           </body>
         </html>
       `,
-    });
+    };
     
-    console.log('✅ Email enviado com sucesso!');
-    console.log('  → MessageID:', result.messageId);
+    // Enviar com retry logic
+    const result = await sendEmailWithRetry(mailOptions);
     
-    return { success: true, messageId: result.messageId };
+    if (result.success) {
+      console.log('\n✅ EMAIL ENVIADO COM SUCESSO!');
+      console.log('  → MessageID:', result.result.messageId);
+      console.log('  → Response:', result.result.response);
+      console.log('='.repeat(80) + '\n');
+      return { success: true, messageId: result.result.messageId };
+    } else {
+      throw result.error;
+    }
+    
   } catch (error) {
-    console.error('❌ ERRO ao enviar email de boas-vindas:');
+    console.error('\n' + '='.repeat(80));
+    console.error('❌ ERRO CRÍTICO AO ENVIAR EMAIL DE BOAS-VINDAS');
+    console.error('='.repeat(80));
     console.error('  → Error:', error);
+    console.error('  → Message:', (error as Error).message);
     console.error('  → Stack:', (error as Error).stack);
+    console.error('='.repeat(80) + '\n');
     return { success: false, error };
   }
 }
