@@ -30,7 +30,7 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-[#00bf63] hover:bg-[#00a555] text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-lg shadow-[#00bf63]/20;
+    @apply bg-[#00bf63] hover:bg-[#00a555] text-white font-medium px-4 py-2 rounded-lg transition-all shadow-lg shadow-[#00bf63]/20 hover:shadow-[#00bf63]/40;
   }
   
   .btn-secondary {
@@ -42,11 +42,16 @@
   }
 
   .card {
-    @apply bg-[#0d0d0d] rounded-lg shadow-xl border border-[#2a2a2a] p-6;
+    @apply bg-gradient-to-br from-[#0d0d0d] to-[#121212] rounded-lg shadow-xl border border-[#2a2a2a] p-6;
+  }
+
+  /* Card com hover glow verde */
+  .card-hover-glow {
+    @apply bg-gradient-to-br from-[#0d0d0d] to-[#121212] rounded-lg shadow-xl border border-[#2a2a2a] p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-[#00bf63]/10 hover:border-[#00bf63]/30;
   }
 
   .input {
-    @apply w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00bf63] focus:border-transparent placeholder-[#737373];
+    @apply w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00bf63] focus:border-transparent placeholder-[#737373] transition-all;
   }
 
   .text-primary {
@@ -68,6 +73,15 @@
   .border-primary {
     @apply border-[#00bf63];
   }
+
+  /* Tooltip customizado */
+  .custom-tooltip {
+    @apply invisible absolute z-50 px-3 py-2 text-sm text-white/85 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg shadow-xl opacity-0 transition-opacity duration-200;
+  }
+
+  .tooltip-trigger:hover .custom-tooltip {
+    @apply visible opacity-100;
+  }
 }
 
 /* Animações customizadas */
@@ -86,6 +100,22 @@
   to { transform: translateX(0); }
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 191, 99, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 191, 99, 0.5); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }
@@ -96,6 +126,14 @@
 
 .animate-slide-in-right {
   animation: slideInRight 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
 }
 
 /* Scrollbar customizada - Dark Mode */

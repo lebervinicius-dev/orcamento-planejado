@@ -1,9 +1,10 @@
 
+
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Brain, Plus, Calendar, TrendingUp, Lightbulb, ChevronDown, ChevronRight } from 'lucide-react'
+import { Brain, Plus, Calendar, TrendingUp, Lightbulb, ChevronDown, ChevronRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 interface Analysis {
@@ -86,17 +87,43 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
         <button
           onClick={generateAnalysis}
           disabled={isGenerating || !hasTransactions}
-          className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+          className="btn-primary flex items-center space-x-2 disabled:opacity-50 hover:scale-105 transition-transform"
           title={!hasTransactions ? 'Adicione transações primeiro' : ''}
         >
-          <Plus className="h-4 w-4" />
-          <span>{isGenerating ? 'Gerando...' : 'Gerar Nova Análise'}</span>
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Gerando...</span>
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              <span>Gerar Nova Análise</span>
+            </>
+          )}
         </button>
       </div>
 
+      {/* Feedback visual ao gerar */}
+      {isGenerating && (
+        <div className="card bg-gradient-to-r from-[#00bf63]/10 to-[#0d0d0d] border-l-4 border-[#00bf63] animate-pulse">
+          <div className="flex items-center space-x-3">
+            <div className="bg-[#00bf63]/20 p-3 rounded-full">
+              <Brain className="h-6 w-6 text-[#00bf63] animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white">Sofia está analisando suas finanças...</h3>
+              <p className="text-sm text-[#737373]">
+                A IA está processando suas transações e gerando insights personalizados
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Lista de Análises */}
       {analyses.length === 0 ? (
-        <div className="card text-center py-12">
+        <div className="card text-center py-12 hover:shadow-[#00bf63]/10 hover:shadow-2xl transition-all">
           <div className="text-6xl mb-4">🤖</div>
           <h3 className="text-xl font-semibold text-white mb-2">
             {hasTransactions ? 'Nenhuma análise gerada ainda' : 'Precisa de dados para análise'}
@@ -111,13 +138,13 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
             <button
               onClick={generateAnalysis}
               disabled={isGenerating}
-              className="btn-primary"
+              className="btn-primary hover:scale-105 transition-transform"
             >
               <Brain className="h-4 w-4 mr-2" />
               {isGenerating ? 'Gerando Análise...' : 'Gerar Primeira Análise'}
             </button>
           ) : (
-            <Link href="/dashboard/transactions/new" className="btn-primary">
+            <Link href="/dashboard/transactions/new" className="btn-primary hover:scale-105 transition-transform">
               <Plus className="h-4 w-4 mr-2" />
               Adicionar Transação
             </Link>
@@ -130,7 +157,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
             return (
               <div
                 key={analysis.id}
-                className="card border-l-4 border-[#00bf63]"
+                className="card-hover-glow border-l-4 border-[#00bf63]"
               >
                 {/* Cabeçalho da Análise */}
                 <div className="flex items-start justify-between mb-4">
@@ -166,7 +193,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                 {/* Métricas Resumidas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   {analysis.insights.totalIncome && (
-                    <div className="bg-[#00bf63]/10 p-3 rounded-lg border border-[#00bf63]/20">
+                    <div className="bg-gradient-to-br from-[#00bf63]/10 to-[#00bf63]/5 p-3 rounded-lg border border-[#00bf63]/20 hover:border-[#00bf63]/40 transition-colors">
                       <p className="text-sm text-[#b0b0b0]">Receitas</p>
                       <p className="text-lg font-bold text-[#00bf63]">
                         R$ {analysis.insights.totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -174,7 +201,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                     </div>
                   )}
                   {analysis.insights.totalExpenses && (
-                    <div className="bg-red-900/10 p-3 rounded-lg border border-red-500/20">
+                    <div className="bg-gradient-to-br from-red-900/10 to-red-900/5 p-3 rounded-lg border border-red-500/20 hover:border-red-500/40 transition-colors">
                       <p className="text-sm text-[#b0b0b0]">Despesas</p>
                       <p className="text-lg font-bold text-red-500">
                         R$ {analysis.insights.totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -182,7 +209,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                     </div>
                   )}
                   {analysis.insights.savings !== undefined && (
-                    <div className="bg-blue-900/10 p-3 rounded-lg border border-blue-500/20">
+                    <div className="bg-gradient-to-br from-blue-900/10 to-blue-900/5 p-3 rounded-lg border border-blue-500/20 hover:border-blue-500/40 transition-colors">
                       <p className="text-sm text-[#b0b0b0]">Economia</p>
                       <p className={`text-lg font-bold ${
                         analysis.insights.savings >= 0 ? 'text-blue-400' : 'text-red-500'
@@ -192,7 +219,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                     </div>
                   )}
                   {analysis.insights.savingsRate !== undefined && (
-                    <div className="bg-purple-900/10 p-3 rounded-lg border border-purple-500/20">
+                    <div className="bg-gradient-to-br from-purple-900/10 to-purple-900/5 p-3 rounded-lg border border-purple-500/20 hover:border-purple-500/40 transition-colors">
                       <p className="text-sm text-[#b0b0b0]">Taxa de Economia</p>
                       <p className="text-lg font-bold text-purple-400">
                         {analysis.insights.savingsRate.toFixed(1)}%
@@ -203,7 +230,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
 
                 {/* Recomendações Principais */}
                 {analysis.insights.recommendations && analysis.insights.recommendations.length > 0 && (
-                  <div className="bg-yellow-900/10 p-4 rounded-lg mb-4 border border-yellow-500/20">
+                  <div className="bg-gradient-to-br from-yellow-900/10 to-yellow-900/5 p-4 rounded-lg mb-4 border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
                     <h4 className="font-medium text-yellow-400 mb-2 flex items-center space-x-2">
                       <Lightbulb className="h-4 w-4" />
                       <span>Principais Recomendações</span>
@@ -242,7 +269,7 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
                 <div className="mt-4 text-center">
                   <button
                     onClick={() => toggleExpanded(analysis.id)}
-                    className="text-[#00bf63] hover:underline text-sm font-medium"
+                    className="text-[#00bf63] hover:underline text-sm font-medium hover:text-[#00a555] transition-colors"
                   >
                     {isExpanded ? 'Ver menos' : 'Ver análise completa'}
                   </button>
@@ -253,8 +280,8 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
         </div>
       )}
 
-      {/* Informação sobre IA */}
-      <div className="card bg-blue-900/10 border-l-4 border-blue-500">
+      {/* Informação sobre IA - Sofia */}
+      <div className="card-hover-glow bg-gradient-to-br from-blue-900/10 to-[#0d0d0d] border-l-4 border-blue-500">
         <div className="flex items-start space-x-3">
           <div className="bg-blue-500/20 p-2 rounded-full">
             <Brain className="h-5 w-5 text-blue-400" />
@@ -262,12 +289,16 @@ export function AnalysesClient({ analyses, hasTransactions }: AnalysesClientProp
           <div>
             <h4 className="font-semibold text-blue-400 mb-2">Consultora Virtual Sofia</h4>
             <div className="text-sm text-[#e0e0e0] space-y-2">
-              <p>
-                Sofia é sua psicóloga financeira pessoal, trazendo clareza emocional e prática às suas finanças.
+              <p className="leading-relaxed">
+                <strong>Sofia é sua guia financeira pessoal.</strong> Ela analisa suas finanças com empatia e inteligência, 
+                ajudando você a entender seus hábitos, enxergar oportunidades e definir metas reais e sustentáveis.
               </p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
+              <p className="text-[#00bf63] font-medium">
+                💡 Mais clareza, menos culpa. Mais propósito, mais prosperidade.
+              </p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-[#b0b0b0]">
                 <li>Análise empática de padrões comportamentais</li>
-                <li>Micro-acordos realistas e sustentáveis</li>
+                <li>Recomendações realistas e sustentáveis</li>
                 <li>Foco em bem-estar e prosperidade constante</li>
                 <li>Sem julgamentos ou prescrições rígidas</li>
               </ul>

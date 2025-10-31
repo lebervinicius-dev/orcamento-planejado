@@ -4,7 +4,17 @@
 import { useState } from 'react'
 import { TrendingUp, TrendingDown, DollarSign, PieChart, LineChart, Brain, Plus, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import FinancialCharts from './financial-charts'
+import dynamic from 'next/dynamic'
+
+// Importar Chart.js dinamicamente para evitar problemas com SSR
+const FinancialChartsChartJS = dynamic(() => import('./financial-charts-chartjs'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00bf63]" />
+    </div>
+  ),
+})
 
 interface Transaction {
   id: string
@@ -154,7 +164,11 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link href="/dashboard/transactions/new" className="btn-primary flex items-center space-x-2">
+          <Link 
+            href="/dashboard/transactions/new" 
+            className="btn-primary flex items-center space-x-2 hover:scale-105 transition-transform"
+            title="Adicione uma nova receita ou despesa"
+          >
             <Plus className="h-4 w-4" />
             <span>Nova Transação</span>
           </Link>
@@ -163,7 +177,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
 
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card hover:shadow-md transition-all">
+        <div className="card-hover-glow" title="Total de receitas no período selecionado">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[#737373] text-sm font-medium mb-1">Receitas do Mês</p>
@@ -171,13 +185,13 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                 R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="bg-[#00bf63]/10 p-3 rounded-full">
+            <div className="bg-[#00bf63]/10 p-3 rounded-full group-hover:bg-[#00bf63]/20 transition-colors">
               <TrendingUp className="h-6 w-6 text-[#00bf63]" />
             </div>
           </div>
         </div>
 
-        <div className="card hover:shadow-md transition-all">
+        <div className="card-hover-glow" title="Total de despesas no período selecionado">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[#737373] text-sm font-medium mb-1">Despesas do Mês</p>
@@ -185,13 +199,13 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                 R$ {totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
-            <div className="bg-red-100 p-3 rounded-full">
+            <div className="bg-red-100 p-3 rounded-full group-hover:bg-red-200 transition-colors">
               <TrendingDown className="h-6 w-6 text-red-600" />
             </div>
           </div>
         </div>
 
-        <div className="card hover:shadow-md transition-all">
+        <div className="card-hover-glow" title="Saldo = Receitas - Despesas">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[#737373] text-sm font-medium mb-1">Saldo do Mês</p>
@@ -199,7 +213,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
                 R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
-            <div className={`p-3 rounded-full ${balance >= 0 ? 'bg-[#00bf63]/10' : 'bg-red-100'}`}>
+            <div className={`p-3 rounded-full transition-colors ${balance >= 0 ? 'bg-[#00bf63]/10 group-hover:bg-[#00bf63]/20' : 'bg-red-100 group-hover:bg-red-200'}`}>
               <DollarSign className={`h-6 w-6 ${balance >= 0 ? 'text-[#00bf63]' : 'text-red-600'}`} />
             </div>
           </div>
@@ -208,7 +222,10 @@ export function DashboardClient({ data }: { data: DashboardData }) {
 
       {/* Última Análise de IA - MOVIDA PARA CIMA */}
       {data.latestAnalysis && (
-        <div className="card bg-gradient-to-r from-[#00bf63]/10 to-[#0d0d0d] border-l-4 border-[#00bf63]">
+        <div 
+          className="card-hover-glow bg-gradient-to-r from-[#00bf63]/10 to-[#0d0d0d] border-l-4 border-[#00bf63]"
+          title="Última análise gerada pela Sofia"
+        >
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-2">
               <div className="bg-[#00bf63]/10 p-2 rounded-full">
@@ -223,7 +240,8 @@ export function DashboardClient({ data }: { data: DashboardData }) {
             </div>
             <Link 
               href="/dashboard/analyses"
-              className="btn-outline text-sm flex items-center space-x-1 border-[#00bf63] text-[#00bf63] hover:bg-[#00bf63] hover:text-white"
+              className="btn-outline text-sm flex items-center space-x-1 border-[#00bf63] text-[#00bf63] hover:bg-[#00bf63] hover:text-white hover:scale-105 transition-transform"
+              title="Ver todas as análises geradas"
             >
               <span>Ver Todas</span>
               <ArrowRight className="h-4 w-4" />
@@ -273,14 +291,14 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Gráfico de Pizza - Receitas */}
-        <div className="card">
+        <div className="card-hover-glow" title="Distribuição das receitas por categoria">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
               <PieChart className="h-5 w-5 text-[#00bf63]" />
               <span>Receitas por Categoria</span>
             </h3>
           </div>
-          <FinancialCharts 
+          <FinancialChartsChartJS 
             type="pie"
             data={incomeByCategory}
             title="Receitas"
@@ -289,14 +307,14 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </div>
 
         {/* Gráfico de Pizza - Despesas */}
-        <div className="card">
+        <div className="card-hover-glow" title="Distribuição das despesas por categoria">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
               <PieChart className="h-5 w-5 text-red-600" />
               <span>Despesas por Categoria</span>
             </h3>
           </div>
-          <FinancialCharts 
+          <FinancialChartsChartJS 
             type="pie"
             data={expensesByCategory}
             title="Despesas"
@@ -306,14 +324,14 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       </div>
 
       {/* Gráfico de Linha - Saldo dos Últimos 12 Meses */}
-      <div className="card">
+      <div className="card-hover-glow" title="Evolução das finanças nos últimos 12 meses">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
             <LineChart className="h-5 w-5 text-[#00bf63]" />
             <span>Evolução do Saldo - Últimos 12 Meses</span>
           </h3>
         </div>
-        <FinancialCharts 
+        <FinancialChartsChartJS 
           type="line"
           data={data.monthlyData}
           title="Saldo Mensal"
@@ -323,16 +341,23 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       {/* Transações Recentes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Receitas Recentes */}
-        <div className="card">
+        <div className="card-hover-glow" title="Últimas receitas registradas">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white">Receitas Recentes</h3>
-            <Link href="/dashboard/transactions?type=INCOME" className="text-[#00bf63] hover:underline text-sm">
+            <Link 
+              href="/dashboard/transactions?type=INCOME" 
+              className="text-[#00bf63] hover:underline text-sm transition-colors hover:text-[#00a555]"
+              title="Ver todas as receitas"
+            >
               Ver todas
             </Link>
           </div>
           <div className="space-y-3">
             {data.monthlyIncome?.slice(0, 5).map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div 
+                key={transaction.id} 
+                className="flex items-center justify-between py-2 border-b border-[#2a2a2a] last:border-b-0 hover:bg-[#1a1a1a] rounded px-2 transition-colors"
+              >
                 <div>
                   <p className="font-medium text-white">{transaction.description}</p>
                   <p className="text-sm text-[#737373]">{transaction.category?.name}</p>
@@ -353,16 +378,23 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         </div>
 
         {/* Despesas Recentes */}
-        <div className="card">
+        <div className="card-hover-glow" title="Últimas despesas registradas">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-white">Despesas Recentes</h3>
-            <Link href="/dashboard/transactions?type=EXPENSE" className="text-[#00bf63] hover:underline text-sm">
+            <Link 
+              href="/dashboard/transactions?type=EXPENSE" 
+              className="text-[#00bf63] hover:underline text-sm transition-colors hover:text-[#00a555]"
+              title="Ver todas as despesas"
+            >
               Ver todas
             </Link>
           </div>
           <div className="space-y-3">
             {data.monthlyExpenses?.slice(0, 5).map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div 
+                key={transaction.id} 
+                className="flex items-center justify-between py-2 border-b border-[#2a2a2a] last:border-b-0 hover:bg-[#1a1a1a] rounded px-2 transition-colors"
+              >
                 <div>
                   <p className="font-medium text-white">{transaction.description}</p>
                   <p className="text-sm text-[#737373]">{transaction.category?.name}</p>
