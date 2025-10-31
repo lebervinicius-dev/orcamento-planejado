@@ -109,28 +109,36 @@ export function CategoryCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between bg-[#1a1f2e] border-[#2d3748] text-white hover:bg-[#252d3d] hover:text-white"
+          className="w-full justify-between bg-[#0d0d0d] border-[#2a2a2a] text-white hover:bg-[#1a1a1a] hover:text-white hover:border-[#00bf63]/30 transition-all"
         >
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-[#737373]" />
             {selectedCategory ? (
-              <span>{selectedCategory.name}</span>
+              <div className="flex items-center gap-2">
+                {selectedCategory.color && (
+                  <div
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: selectedCategory.color }}
+                  />
+                )}
+                <span className="text-white">{selectedCategory.name}</span>
+              </div>
             ) : (
               <span className="text-[#737373]">Selecione uma categoria</span>
             )}
           </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-[#737373]" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0 bg-[#1a1f2e] border-[#2d3748]" align="start">
-        <Command className="bg-[#1a1f2e]">
+      <PopoverContent className="w-full p-0 bg-[#1a1a1a] border-[#2a2a2a] shadow-xl" align="start">
+        <Command className="bg-[#1a1a1a]">
           <CommandInput
             placeholder="Buscar ou criar categoria..."
             value={search}
             onValueChange={setSearch}
-            className="text-white"
+            className="text-white placeholder:text-[#737373] border-b border-[#2a2a2a]"
           />
-          <CommandList className="max-h-[300px] overflow-y-auto">
+          <CommandList className="max-h-[300px] overflow-y-auto custom-scrollbar">
             <CommandEmpty>
               <div className="text-center py-6">
                 <p className="text-sm text-[#737373] mb-2">
@@ -138,7 +146,7 @@ export function CategoryCombobox({
                 </p>
               </div>
             </CommandEmpty>
-            <CommandGroup>
+            <CommandGroup className="p-2">
               {filteredCategories.map((category) => (
                 <CommandItem
                   key={category.id}
@@ -148,18 +156,18 @@ export function CategoryCombobox({
                     setOpen(false)
                     setSearch('')
                   }}
-                  className="text-white hover:bg-[#252d3d] cursor-pointer"
+                  className="text-white hover:bg-[#2a2a2a] cursor-pointer rounded-lg px-3 py-2 transition-colors"
                 >
                   <Check
                     className={cn(
-                      'mr-2 h-4 w-4',
+                      'mr-2 h-4 w-4 text-[#00bf63]',
                       value === category.id ? 'opacity-100' : 'opacity-0'
                     )}
                   />
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-1">
                     {category.color && (
                       <div
-                        className="h-3 w-3 rounded-full"
+                        className="h-3 w-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: category.color }}
                       />
                     )}
@@ -169,11 +177,11 @@ export function CategoryCombobox({
               ))}
             </CommandGroup>
             {showCreateOption && (
-              <CommandGroup>
+              <CommandGroup className="p-2 border-t border-[#2a2a2a]">
                 <CommandItem
                   onSelect={handleCreateCategory}
                   disabled={isCreating}
-                  className="text-[#00bf63] hover:bg-[#252d3d] cursor-pointer border-t border-[#2d3748]"
+                  className="text-[#00bf63] hover:bg-[#00bf63]/10 cursor-pointer rounded-lg px-3 py-2 transition-colors font-medium"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   <span>

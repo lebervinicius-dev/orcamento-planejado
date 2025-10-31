@@ -115,9 +115,10 @@ export function DashboardNav() {
                       </TooltipTrigger>
                       <TooltipContent 
                         side="bottom"
-                        className="bg-[#0d0d0d] text-white/85 border border-[#2a2a2a]"
+                        className="bg-[#0d0d0d] text-white border border-[#2a2a2a] shadow-lg"
+                        sideOffset={8}
                       >
-                        <p>{item.tooltip}</p>
+                        <p className="text-sm">{item.tooltip}</p>
                       </TooltipContent>
                     </Tooltip>
                   )
@@ -140,9 +141,10 @@ export function DashboardNav() {
                   </TooltipTrigger>
                   <TooltipContent 
                     side="bottom"
-                    className="bg-[#0d0d0d] text-white/85 border border-[#2a2a2a]"
+                    className="bg-[#0d0d0d] text-white border border-[#2a2a2a] shadow-lg"
+                    sideOffset={8}
                   >
-                    <p>Ver e editar meu perfil</p>
+                    <p className="text-sm">Ver e editar meu perfil</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -158,9 +160,10 @@ export function DashboardNav() {
                   </TooltipTrigger>
                   <TooltipContent 
                     side="bottom"
-                    className="bg-[#0d0d0d] text-white/85 border border-[#2a2a2a]"
+                    className="bg-[#0d0d0d] text-white border border-[#2a2a2a] shadow-lg"
+                    sideOffset={8}
                   >
-                    <p>Sair da conta</p>
+                    <p className="text-sm">Sair da conta</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

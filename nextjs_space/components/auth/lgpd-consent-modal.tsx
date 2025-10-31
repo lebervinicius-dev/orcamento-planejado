@@ -16,8 +16,9 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Shield, CheckCircle2, Lock, Eye, UserCheck, Clock } from 'lucide-react'
+import { Shield, CheckCircle2, Lock, Eye, UserCheck, Clock, FileText } from 'lucide-react'
 import { toast } from 'sonner'
+import { TermsOfUseModal } from './terms-of-use-modal'
 
 interface LgpdConsentModalProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ interface LgpdConsentModalProps {
 
 export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
 
   const handleConsent = async () => {
     setIsLoading(true)
@@ -98,6 +100,24 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
                   <p className="text-muted-foreground leading-relaxed">
                     Utilizamos criptografia de ponta e servidores seguros. Seus dados financeiros 
                     <strong className="text-foreground"> nunca serão vendidos ou compartilhados</strong> com terceiros para marketing.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Informação sobre a IA Sofia */}
+            <div className="p-4 bg-[#6f42c1]/10 rounded-lg border border-[#6f42c1]/20">
+              <div className="flex items-start gap-3">
+                <UserCheck className="h-5 w-5 text-[#6f42c1] mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground flex items-center gap-2">
+                    🤖 Análises Inteligentes com Sofia
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">As informações de suas transações são utilizadas exclusivamente 
+                    para gerar análises pessoais pela IA Sofia.</strong> Nenhum outro usuário, administrador ou 
+                    terceiro tem acesso a esses dados. As análises são criadas apenas para você, garantindo 
+                    total privacidade e segurança.
                   </p>
                 </div>
               </div>
@@ -182,6 +202,28 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
               </div>
             </div>
 
+            {/* Termos de Uso */}
+            <div className="p-4 bg-muted/30 rounded-lg border border-border">
+              <div className="flex items-start gap-3">
+                <FileText className="h-5 w-5 text-[#00bf63] mt-0.5 flex-shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <h3 className="font-semibold text-foreground">📋 Termos de Uso</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Ao usar o Orçamento Planejado, você concorda com nossos termos e condições de uso.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsTermsModalOpen(true)}
+                    className="mt-2 text-[#00bf63] border-[#00bf63]/30 hover:bg-[#00bf63]/10"
+                  >
+                    <FileText className="h-3 w-3 mr-2" />
+                    Ler Termos Completos
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             {/* Parceiros */}
             <div className="p-3 bg-muted/30 rounded-lg border border-border">
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -223,6 +265,12 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
           </Button>
         </DialogFooter>
       </DialogContent>
+      
+      {/* Modal de Termos de Uso */}
+      <TermsOfUseModal 
+        isOpen={isTermsModalOpen} 
+        onClose={() => setIsTermsModalOpen(false)} 
+      />
     </Dialog>
   )
 }
