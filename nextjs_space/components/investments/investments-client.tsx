@@ -53,14 +53,12 @@ import {
 
 ChartJS.register(ArcElement, ChartTooltip, Legend)
 
-// Categorias padrão de investimento
-const INVESTMENT_CATEGORIES = [
-  'Renda Fixa',
-  'Ações',
-  'Fundos',
-  'Cripto',
-  'Outros'
-]
+interface Category {
+  id: string
+  name: string
+  type: string
+  color?: string | null
+}
 
 interface Goal {
   id: string
@@ -88,8 +86,10 @@ interface InvestmentsClientProps {
 export function InvestmentsClient({ initialGoals, initialInvestments }: InvestmentsClientProps) {
   const [goals, setGoals] = useState<Goal[]>(initialGoals)
   const [investments, setInvestments] = useState<Investment[]>(initialInvestments)
+  const [investmentCategories, setInvestmentCategories] = useState<Category[]>([])
   const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false)
   const [isInvestmentDialogOpen, setIsInvestmentDialogOpen] = useState(false)
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   // Estados do formulário de meta
@@ -102,6 +102,27 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
   const [investmentCategory, setInvestmentCategory] = useState('')
   const [investmentDate, setInvestmentDate] = useState(new Date().toISOString().split('T')[0])
   const [selectedGoalId, setSelectedGoalId] = useState<string>('')
+
+  // Estados do formulário de categoria
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryColor, setNewCategoryColor] = useState('#00bf63')
+
+  // Carregar categorias de investimento
+  useEffect(() => {
+    loadInvestmentCategories()
+  }, [])
+
+  const loadInvestmentCategories = async () => {
+    try {
+      const response = await fetch('/api/categories?type=INVESTMENT')
+      if (response.ok) {
+        const categories = await response.json()
+        setInvestmentCategories(categories)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error)
+    }
+  }
 
   // Calcular distribuição por categoria
   const categoryDistribution = investments.reduce((acc, inv) => {
@@ -289,6 +310,65 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
       }
     } catch (error) {
       toast.error('Erro ao deletar investimento')
+    }
+  }
+
+  // Criar nova categoria de investimento
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) {
+      toast.error('Nome da categoria é obrigatório')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newCategoryName.trim(),
+          type: 'INVESTMENT',
+          color: newCategoryColor,
+        }),
+      })
+
+      if (response.ok) {
+        await loadInvestmentCategories()
+        toast.success('Categoria criada com sucesso! 🎉')
+        setNewCategoryName('')
+        setNewCategoryColor('#00bf63')
+        setIsCategoryDialogOpen(false)
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Erro ao criar categoria')
+      }
+    } catch (error) {
+      toast.error('Erro ao criar categoria')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Deletar categoria de investimento
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!confirm('Deseja realmente excluir esta categoria?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await loadInvestmentCategories()
+        toast.success('Categoria removida com sucesso')
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Erro ao deletar categoria')
+      }
+    } catch (error) {
+      toast.error('Erro ao deletar categoria')
     }
   }
 
@@ -596,6 +676,65 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
         </DialogContent>
       </Dialog>
 
+      {/* Dialog de Nova Categoria de Investimento */}
+      <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+        <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] text-white">
+          <DialogHeader>
+            <DialogTitle>Nova Categoria de Investimento</DialogTitle>
+            <DialogDescription className="text-[#737373]">
+              Crie uma nova categoria para organizar seus investimentos
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="category-name">Nome da Categoria</Label>
+              <Input
+                id="category-name"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Ex: Imóveis"
+                className="bg-[#0d0d0d] border-[#2a2a2a] text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="category-color">Cor</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="category-color"
+                  type="color"
+                  value={newCategoryColor}
+                  onChange={(e) => setNewCategoryColor(e.target.value)}
+                  className="w-20 h-10 bg-[#0d0d0d] border-[#2a2a2a]"
+                />
+                <Input
+                  type="text"
+                  value={newCategoryColor}
+                  onChange={(e) => setNewCategoryColor(e.target.value)}
+                  placeholder="#00bf63"
+                  className="flex-1 bg-[#0d0d0d] border-[#2a2a2a] text-white"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsCategoryDialogOpen(false)}
+              className="border-[#2a2a2a] text-white hover:bg-[#2a2a2a]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCreateCategory}
+              disabled={isLoading}
+              className="bg-[#00bf63] hover:bg-[#00a855] text-white"
+            >
+              {isLoading ? 'Criando...' : 'Criar Categoria'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Dialog de Novo Investimento */}
       <Dialog open={isInvestmentDialogOpen} onOpenChange={setIsInvestmentDialogOpen}>
         <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] text-white">
@@ -628,17 +767,42 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
               />
             </div>
             <div>
-              <Label htmlFor="investment-category">Categoria</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="investment-category">Categoria</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsCategoryDialogOpen(true)}
+                  className="h-6 text-xs text-[#00bf63] hover:text-[#00a855] hover:bg-[#00bf63]/10"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Nova Categoria
+                </Button>
+              </div>
               <Select value={investmentCategory} onValueChange={setInvestmentCategory}>
                 <SelectTrigger className="bg-[#0d0d0d] border-[#2a2a2a] text-white">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a1a1a] border-[#2a2a2a]">
-                  {INVESTMENT_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="text-white hover:bg-[#2a2a2a]">
-                      {cat}
+                  {investmentCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name} className="text-white hover:bg-[#2a2a2a]">
+                      <div className="flex items-center gap-2">
+                        {cat.color && (
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: cat.color }}
+                          />
+                        )}
+                        {cat.name}
+                      </div>
                     </SelectItem>
                   ))}
+                  {investmentCategories.length === 0 && (
+                    <div className="p-2 text-center text-[#737373] text-sm">
+                      Nenhuma categoria encontrada
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -654,12 +818,12 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
             </div>
             <div>
               <Label htmlFor="investment-goal">Vincular à Meta (opcional)</Label>
-              <Select value={selectedGoalId} onValueChange={setSelectedGoalId}>
+              <Select value={selectedGoalId || 'no-goal'} onValueChange={(value) => setSelectedGoalId(value === 'no-goal' ? '' : value)}>
                 <SelectTrigger className="bg-[#0d0d0d] border-[#2a2a2a] text-white">
                   <SelectValue placeholder="Nenhuma meta selecionada" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a1a1a] border-[#2a2a2a]">
-                  <SelectItem value="none" className="text-white hover:bg-[#2a2a2a]">
+                  <SelectItem value="no-goal" className="text-white hover:bg-[#2a2a2a]">
                     Nenhuma meta
                   </SelectItem>
                   {goals.map((goal) => (

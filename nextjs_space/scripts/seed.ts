@@ -50,19 +50,28 @@ async function main() {
   // Categorias padrão para receitas (5 categorias)
   const incomeCategories = [
     { name: 'Salário', color: '#00bf63' },
-    { name: 'Bonificações', color: '#20c997' },
-    { name: 'Freelance', color: '#17a2b8' },
-    { name: 'Investimentos', color: '#6f42c1' },
-    { name: 'Outros', color: '#28a745' },
+    { name: 'Vale', color: '#20c997' },
+    { name: 'Comissão', color: '#17a2b8' },
+    { name: 'Bonificação', color: '#6f42c1' },
+    { name: 'Renda Extra', color: '#28a745' },
   ]
 
   // Categorias padrão para despesas (5 categorias)
   const expenseCategories = [
     { name: 'Moradia', color: '#6c757d' },
-    { name: 'Alimentação', color: '#dc3545' },
     { name: 'Transporte', color: '#ffc107' },
+    { name: 'Mercado', color: '#fd7e14' },
+    { name: 'Alimentação', color: '#dc3545' },
     { name: 'Saúde', color: '#e83e8c' },
-    { name: 'Lazer', color: '#fd7e14' },
+  ]
+
+  // Categorias padrão para investimentos (5 categorias)
+  const investmentCategories = [
+    { name: 'Renda Fixa', color: '#00bf63' },
+    { name: 'Ações', color: '#20c997' },
+    { name: 'Fundos', color: '#6f42c1' },
+    { name: 'Cripto', color: '#ffc107' },
+    { name: 'Outros', color: '#737373' },
   ]
 
   // Criar categorias de receita
@@ -99,6 +108,26 @@ async function main() {
       create: {
         name: category.name,
         type: TransactionType.EXPENSE,
+        color: category.color,
+        userId: testUser.id,
+      },
+    })
+  }
+
+  // Criar categorias de investimento
+  for (const category of investmentCategories) {
+    await prisma.category.upsert({
+      where: {
+        userId_name_type: {
+          userId: testUser.id,
+          name: category.name,
+          type: 'INVESTMENT' as any,
+        },
+      },
+      update: {},
+      create: {
+        name: category.name,
+        type: 'INVESTMENT' as any,
         color: category.color,
         userId: testUser.id,
       },

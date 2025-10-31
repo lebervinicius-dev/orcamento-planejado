@@ -7,13 +7,13 @@ import { X, Tag, Palette } from 'lucide-react'
 interface Category {
   id?: string
   name: string
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   color?: string | null
 }
 
 interface CategoryModalProps {
   category: Category | null
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   onClose: () => void
   onSuccess: () => void
 }
@@ -83,7 +83,7 @@ export function CategoryModal({ category, type, onClose, onSuccess }: CategoryMo
           <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
             <Tag className="h-5 w-5 text-[#00bf63]" />
             <span>
-              {category ? 'Editar' : 'Nova'} Categoria {type === 'INCOME' ? 'de Receita' : 'de Despesa'}
+              {category ? 'Editar' : 'Nova'} Categoria {type === 'INCOME' ? 'de Receita' : type === 'EXPENSE' ? 'de Despesa' : 'de Investimento'}
             </span>
           </h3>
           <button
@@ -162,9 +162,11 @@ export function CategoryModal({ category, type, onClose, onSuccess }: CategoryMo
               <span className={`text-sm px-2 py-1 rounded-full ${
                 type === 'INCOME' 
                   ? 'bg-[#00bf63]/10 text-[#00bf63]' 
-                  : 'bg-red-100 text-red-600'
+                  : type === 'EXPENSE'
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-[#6f42c1]/10 text-[#6f42c1]'
               }`}>
-                {type === 'INCOME' ? 'Receita' : 'Despesa'}
+                {type === 'INCOME' ? 'Receita' : type === 'EXPENSE' ? 'Despesa' : 'Investimento'}
               </span>
             </div>
           </div>

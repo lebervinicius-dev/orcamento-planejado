@@ -81,7 +81,7 @@ model VerificationToken {
 model Category {
   id     String @id @default(cuid())
   name   String
-  type   TransactionType // INCOME ou EXPENSE
+  type   CategoryType // INCOME, EXPENSE ou INVESTMENT
   color  String? // Cor hex para visualizações (#00bf63, #737373, etc)
   userId String
 
@@ -169,6 +169,12 @@ model Goal {
 enum TransactionType {
   INCOME  // Receita/Entrada
   EXPENSE // Despesa/Saída
+}
+
+enum CategoryType {
+  INCOME     // Categoria de Receita/Entrada
+  EXPENSE    // Categoria de Despesa/Saída
+  INVESTMENT // Categoria de Investimento
 }
 
 enum UserStatus {

@@ -46,17 +46,25 @@ export async function POST(request: NextRequest) {
     // Criar categorias padrão para o novo usuário
     const incomeCategories = [
       { name: 'Salário', color: '#00bf63' },
-      { name: 'Freelancer', color: '#20c997' },
-      { name: 'Investimentos', color: '#6f42c1' },
-      { name: 'Outros', color: '#737373' },
+      { name: 'Vale', color: '#20c997' },
+      { name: 'Comissão', color: '#17a2b8' },
+      { name: 'Bonificação', color: '#6f42c1' },
+      { name: 'Renda Extra', color: '#28a745' },
     ]
 
     const expenseCategories = [
-      { name: 'Alimentação', color: '#dc3545' },
-      { name: 'Transporte', color: '#ffc107' },
       { name: 'Moradia', color: '#6c757d' },
-      { name: 'Saúde', color: '#28a745' },
-      { name: 'Entretenimento', color: '#fd7e14' },
+      { name: 'Transporte', color: '#ffc107' },
+      { name: 'Mercado', color: '#fd7e14' },
+      { name: 'Alimentação', color: '#dc3545' },
+      { name: 'Saúde', color: '#e83e8c' },
+    ]
+
+    const investmentCategories = [
+      { name: 'Renda Fixa', color: '#00bf63' },
+      { name: 'Ações', color: '#20c997' },
+      { name: 'Fundos', color: '#6f42c1' },
+      { name: 'Cripto', color: '#ffc107' },
       { name: 'Outros', color: '#737373' },
     ]
 
@@ -78,6 +86,18 @@ export async function POST(request: NextRequest) {
         data: {
           name: category.name,
           type: 'EXPENSE',
+          color: category.color,
+          userId: user.id,
+        },
+      })
+    }
+
+    // Criar categorias de investimento
+    for (const category of investmentCategories) {
+      await prisma.category.create({
+        data: {
+          name: category.name,
+          type: 'INVESTMENT',
           color: category.color,
           userId: user.id,
         },

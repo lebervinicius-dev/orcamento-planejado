@@ -31,10 +31,13 @@ export default async function EditTransactionPage({
     notFound()
   }
 
-  // Buscar categorias do usuário
+  // Buscar categorias do usuário (apenas INCOME e EXPENSE, não INVESTMENT)
   const categories = await prisma.category.findMany({
     where: {
       userId: session.user.id,
+      type: {
+        in: ['INCOME', 'EXPENSE'],
+      },
     },
     orderBy: [
       { type: 'asc' },
@@ -57,7 +60,7 @@ export default async function EditTransactionPage({
 
       <div className="card">
         <TransactionForm 
-          categories={categories}
+          categories={categories as any}
           mode="edit"
           transaction={transformedTransaction}
         />

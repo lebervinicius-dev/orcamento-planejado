@@ -55,10 +55,13 @@ export default async function TransactionsPage({
   // Contar total para paginação
   const totalTransactions = await prisma.transaction.count({ where })
 
-  // Buscar categorias para filtros
+  // Buscar categorias para filtros (apenas INCOME e EXPENSE, não INVESTMENT)
   const categories = await prisma.category.findMany({
     where: {
       userId: session.user.id,
+      type: {
+        in: ['INCOME', 'EXPENSE'],
+      },
     },
     orderBy: {
       name: 'asc',
@@ -73,7 +76,7 @@ export default async function TransactionsPage({
   return (
     <TransactionsClient
       transactions={transformedTransactions}
-      categories={categories}
+      categories={categories as any}
       totalPages={Math.ceil(totalTransactions / limit)}
       currentPage={page}
       filters={{

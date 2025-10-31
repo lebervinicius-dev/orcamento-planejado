@@ -3,13 +3,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Edit, Trash2, Tag, TrendingUp, TrendingDown } from 'lucide-react'
+import { Plus, Edit, Trash2, Tag, TrendingUp, TrendingDown, PieChart } from 'lucide-react'
 import { CategoryModal } from './category-modal'
 
 interface Category {
   id: string
   name: string
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   color?: string | null
   _count: {
     transactions: number
@@ -24,14 +24,14 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
-  const [activeTab, setActiveTab] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
+  const [activeTab, setActiveTab] = useState<'INCOME' | 'EXPENSE' | 'INVESTMENT'>('EXPENSE')
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category)
     setIsModalOpen(true)
   }
 
-  const handleCreate = (type: 'INCOME' | 'EXPENSE') => {
+  const handleCreate = (type: 'INCOME' | 'EXPENSE' | 'INVESTMENT') => {
     setEditingCategory(null)
     setActiveTab(type)
     setIsModalOpen(true)
@@ -58,6 +58,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
 
   const incomeCategories = categories.filter(cat => cat.type === 'INCOME')
   const expenseCategories = categories.filter(cat => cat.type === 'EXPENSE')
+  const investmentCategories = categories.filter(cat => cat.type === 'INVESTMENT')
 
   return (
     <div className="space-y-6">
@@ -72,7 +73,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-[#1a1a1a] rounded-lg p-1 max-w-md">
+      <div className="flex space-x-1 bg-[#1a1a1a] rounded-lg p-1">
         <button
           onClick={() => setActiveTab('EXPENSE')}
           className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-md font-medium transition-all ${
@@ -101,6 +102,20 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
             {incomeCategories.length}
           </span>
         </button>
+        <button
+          onClick={() => setActiveTab('INVESTMENT')}
+          className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-md font-medium transition-all ${
+            activeTab === 'INVESTMENT'
+              ? 'bg-white text-[#6f42c1] shadow-sm'
+              : 'text-[#737373] hover:text-[#6f42c1]'
+          }`}
+        >
+          <PieChart className="h-4 w-4" />
+          <span>Investimentos</span>
+          <span className="text-xs bg-[#6f42c1]/10 text-[#6f42c1] px-2 py-1 rounded-full">
+            {investmentCategories.length}
+          </span>
+        </button>
       </div>
 
       {/* Conteúdo das Tabs */}
@@ -112,10 +127,15 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
                 <TrendingUp className="h-5 w-5 text-[#00bf63]" />
                 <span>Categorias de Receita</span>
               </>
-            ) : (
+            ) : activeTab === 'EXPENSE' ? (
               <>
                 <TrendingDown className="h-5 w-5 text-red-600" />
                 <span>Categorias de Despesa</span>
+              </>
+            ) : (
+              <>
+                <PieChart className="h-5 w-5 text-[#6f42c1]" />
+                <span>Categorias de Investimento</span>
               </>
             )}
           </h3>
@@ -130,7 +150,7 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
 
         {/* Lista de Categorias */}
         <div className="space-y-3">
-          {(activeTab === 'INCOME' ? incomeCategories : expenseCategories).map((category) => (
+          {(activeTab === 'INCOME' ? incomeCategories : activeTab === 'EXPENSE' ? expenseCategories : investmentCategories).map((category) => (
             <div
               key={category.id}
               className="flex items-center justify-between p-4 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg hover:shadow-sm transition-all"
@@ -169,16 +189,16 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
             </div>
           ))}
 
-          {(activeTab === 'INCOME' ? incomeCategories : expenseCategories).length === 0 && (
+          {(activeTab === 'INCOME' ? incomeCategories : activeTab === 'EXPENSE' ? expenseCategories : investmentCategories).length === 0 && (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">
-                {activeTab === 'INCOME' ? '💰' : '💸'}
+                {activeTab === 'INCOME' ? '💰' : activeTab === 'EXPENSE' ? '💸' : '📈'}
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">
-                Nenhuma categoria de {activeTab === 'INCOME' ? 'receita' : 'despesa'}
+                Nenhuma categoria de {activeTab === 'INCOME' ? 'receita' : activeTab === 'EXPENSE' ? 'despesa' : 'investimento'}
               </h3>
               <p className="text-[#737373] mb-6">
-                Crie sua primeira categoria para organizar suas {activeTab === 'INCOME' ? 'receitas' : 'despesas'}.
+                Crie sua primeira categoria para organizar {activeTab === 'INCOME' ? 'suas receitas' : activeTab === 'EXPENSE' ? 'suas despesas' : 'seus investimentos'}.
               </p>
               <button
                 onClick={() => handleCreate(activeTab)}
