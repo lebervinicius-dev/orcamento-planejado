@@ -157,12 +157,23 @@ export async function sendCancellationEmail(to: string, name: string, reason: 'r
     : 'cancelamento da sua assinatura';
   
   try {
-    console.log('📧 Iniciando envio de email de cancelamento...');
+    console.log('\n' + '='.repeat(80));
+    console.log('📧 ENVIANDO EMAIL DE CANCELAMENTO');
+    console.log('='.repeat(80));
     console.log('  → Para:', to);
     console.log('  → Nome:', name);
     console.log('  → Motivo:', reason);
+    console.log('  → Configuração GMAIL_USER:', process.env.GMAIL_USER);
+    console.log('  → GMAIL_APP_PASSWORD configurado:', !!process.env.GMAIL_APP_PASSWORD);
+    console.log('='.repeat(80));
     
-    const result = await transporter.sendMail({
+    // Validar email
+    if (!isValidEmail(to)) {
+      console.error('❌ Email inválido:', to);
+      return { success: false, error: new Error('Email inválido') };
+    }
+    
+    const mailOptions = {
       from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
       to,
       subject: `Sua assinatura do ${APP_NAME} foi cancelada`,
@@ -221,16 +232,29 @@ export async function sendCancellationEmail(to: string, name: string, reason: 'r
           </body>
         </html>
       `,
-    });
+    };
     
-    console.log('✅ Email de cancelamento enviado com sucesso!');
-    console.log('  → MessageID:', result.messageId);
+    // Enviar com retry logic
+    const result = await sendEmailWithRetry(mailOptions);
     
-    return { success: true, messageId: result.messageId };
+    if (result.success) {
+      console.log('\n✅ EMAIL DE CANCELAMENTO ENVIADO COM SUCESSO!');
+      console.log('  → MessageID:', result.result.messageId);
+      console.log('  → Response:', result.result.response);
+      console.log('='.repeat(80) + '\n');
+      return { success: true, messageId: result.result.messageId };
+    } else {
+      throw result.error;
+    }
+    
   } catch (error) {
-    console.error('❌ ERRO ao enviar email de cancelamento:');
+    console.error('\n' + '='.repeat(80));
+    console.error('❌ ERRO CRÍTICO AO ENVIAR EMAIL DE CANCELAMENTO');
+    console.error('='.repeat(80));
     console.error('  → Error:', error);
+    console.error('  → Message:', (error as Error).message);
     console.error('  → Stack:', (error as Error).stack);
+    console.error('='.repeat(80) + '\n');
     return { success: false, error };
   }
 }
@@ -239,7 +263,22 @@ export async function sendPasswordResetEmail(to: string, resetToken: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL || 'https://orcamento-planejado.abacusai.app'}/auth/reset-password?token=${resetToken}`;
   
   try {
-    await transporter.sendMail({
+    console.log('\n' + '='.repeat(80));
+    console.log('🔒 ENVIANDO EMAIL DE RECUPERAÇÃO DE SENHA');
+    console.log('='.repeat(80));
+    console.log('  → Para:', to);
+    console.log('  → Reset URL:', resetUrl.substring(0, 50) + '...');
+    console.log('  → Configuração GMAIL_USER:', process.env.GMAIL_USER);
+    console.log('  → GMAIL_APP_PASSWORD configurado:', !!process.env.GMAIL_APP_PASSWORD);
+    console.log('='.repeat(80));
+    
+    // Validar email
+    if (!isValidEmail(to)) {
+      console.error('❌ Email inválido:', to);
+      return { success: false, error: new Error('Email inválido') };
+    }
+    
+    const mailOptions = {
       from: `"${APP_NAME}" <${process.env.GMAIL_USER}>`,
       to,
       subject: `🔒 Recuperação de senha - ${APP_NAME}`,
@@ -291,11 +330,29 @@ export async function sendPasswordResetEmail(to: string, resetToken: string) {
           </body>
         </html>
       `,
-    });
+    };
     
-    return { success: true };
+    // Enviar com retry logic
+    const result = await sendEmailWithRetry(mailOptions);
+    
+    if (result.success) {
+      console.log('\n✅ EMAIL DE RECUPERAÇÃO ENVIADO COM SUCESSO!');
+      console.log('  → MessageID:', result.result.messageId);
+      console.log('  → Response:', result.result.response);
+      console.log('='.repeat(80) + '\n');
+      return { success: true, messageId: result.result.messageId };
+    } else {
+      throw result.error;
+    }
+    
   } catch (error) {
-    console.error('Erro ao enviar email de recuperação:', error);
+    console.error('\n' + '='.repeat(80));
+    console.error('❌ ERRO CRÍTICO AO ENVIAR EMAIL DE RECUPERAÇÃO');
+    console.error('='.repeat(80));
+    console.error('  → Error:', error);
+    console.error('  → Message:', (error as Error).message);
+    console.error('  → Stack:', (error as Error).stack);
+    console.error('='.repeat(80) + '\n');
     return { success: false, error };
   }
 }

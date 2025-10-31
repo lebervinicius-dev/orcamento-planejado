@@ -2,36 +2,46 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-type User = {
-  id: string
-  name: string | null
-  email: string
-  createdAt: Date
-  hotmartId: string | null
-}
-
 async function main() {
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 5
+    where: {
+      email: {
+        in: ['pedrogmac9@gmail.com', 'clara@tomaraeducacaoecultura.com.br', 'lebervinicius@gmail.com']
+      }
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      isActive: true,
+      status: true,
+      createdAt: true,
+      resetToken: true,
+      resetTokenExpiry: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
   })
-  
-  console.log('\n📊 ÚLTIMOS 5 USUÁRIOS CRIADOS:')
-  console.log('=' .repeat(80))
-  
-  if (users.length === 0) {
-    console.log('❌ NENHUM usuário encontrado no banco!')
-    console.log('⚠️  Isso significa que o webhook NÃO foi chamado pela Hotmart')
-  } else {
-    users.forEach((user: User, index: number) => {
-      console.log(`\n${index + 1}. ${user.name}`)
-      console.log(`   Email: ${user.email}`)
-      console.log(`   Criado em: ${user.createdAt}`)
-      console.log(`   Hotmart ID: ${user.hotmartId || 'N/A'}`)
-    })
-  }
-  
-  await prisma.$disconnect()
+
+  console.log('\n' + '='.repeat(80))
+  console.log('USUÁRIOS NO BANCO DE DADOS')
+  console.log('='.repeat(80))
+  users.forEach(user => {
+    console.log(`\n📧 ${user.email}`)
+    console.log(`   Nome: ${user.name}`)
+    console.log(`   ID: ${user.id}`)
+    console.log(`   Status: ${user.status}`)
+    console.log(`   Ativo: ${user.isActive}`)
+    console.log(`   Telefone: ${user.phone || 'N/A'}`)
+    console.log(`   Reset Token: ${user.resetToken ? 'SIM' : 'NÃO'}`)
+    console.log(`   Reset Token Expiry: ${user.resetTokenExpiry || 'N/A'}`)
+    console.log(`   Criado em: ${user.createdAt}`)
+  })
+  console.log('\n' + '='.repeat(80) + '\n')
 }
 
-main().catch(console.error)
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect())
