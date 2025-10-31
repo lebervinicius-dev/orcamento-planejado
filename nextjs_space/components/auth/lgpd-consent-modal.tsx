@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Shield, CheckCircle2, Info } from 'lucide-react'
+import { Shield, CheckCircle2, Lock, Eye, UserCheck, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface LgpdConsentModalProps {
@@ -44,7 +44,7 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
         throw new Error(data.error || 'Erro ao registrar consentimento')
       }
 
-      toast.success('Consentimento registrado com sucesso!')
+      toast.success('✅ Tudo pronto! Você já pode usar o app com segurança.')
       onConsentGiven()
       
     } catch (error: any) {
@@ -55,123 +55,155 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
     }
   }
 
+  const handleLater = () => {
+    toast.info('Você pode aceitar depois nas configurações do seu perfil.')
+    onConsentGiven()
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent 
-        className="sm:max-w-[600px] max-h-[90vh]" 
+        className="sm:max-w-[650px] max-h-[92vh]" 
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <DialogHeader className="space-y-3">
+        <DialogHeader className="space-y-3 pb-2">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-primary/10">
-              <Shield className="h-6 w-6 text-primary" />
+            <div className="p-2.5 rounded-full bg-[#00bf63]/10">
+              <Shield className="h-7 w-7 text-[#00bf63]" />
             </div>
-            <DialogTitle className="text-2xl">
-              Consentimento LGPD
-            </DialogTitle>
+            <div className="flex-1">
+              <DialogTitle className="text-2xl font-bold">
+                Bem-vindo ao Orçamento Planejado! 👋
+              </DialogTitle>
+              <DialogDescription className="text-base mt-1.5 text-muted-foreground">
+                Sua privacidade é nossa prioridade. Veja como protegemos seus dados.
+              </DialogDescription>
+            </div>
           </div>
-          <DialogDescription className="text-base">
-            Para utilizar o <strong>Orçamento Planejado</strong>, precisamos do seu consentimento
-            para coletar e processar seus dados pessoais conforme a LGPD.
-          </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[50vh] pr-4">
-          <div className="space-y-4 text-sm text-muted-foreground">
+        <ScrollArea className="max-h-[52vh] pr-4">
+          <div className="space-y-5 text-sm">
             
-            {/* Dados coletados */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 font-semibold text-foreground">
-                <Info className="h-4 w-4" />
-                <h3>Dados Coletados</h3>
+            {/* Garantia de Segurança */}
+            <div className="p-4 bg-gradient-to-r from-[#00bf63]/10 to-[#00bf63]/5 rounded-lg border border-[#00bf63]/20">
+              <div className="flex items-start gap-3">
+                <Lock className="h-5 w-5 text-[#00bf63] mt-0.5 flex-shrink-0" />
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-foreground">🔒 Seus Dados Estão Seguros</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Utilizamos criptografia de ponta e servidores seguros. Seus dados financeiros 
+                    <strong className="text-foreground"> nunca serão vendidos ou compartilhados</strong> com terceiros para marketing.
+                  </p>
+                </div>
               </div>
-              <p>
-                Coletamos e armazenamos as seguintes informações:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li><strong>Dados cadastrais:</strong> nome, e-mail, telefone</li>
-                <li><strong>Dados financeiros:</strong> transações, categorias, investimentos</li>
-                <li><strong>Dados de uso:</strong> análises de IA, metas financeiras</li>
-                <li><strong>Dados de acesso:</strong> histórico de login, preferências</li>
-              </ul>
             </div>
 
-            {/* Finalidade */}
-            <div className="space-y-2">
+            {/* O que coletamos */}
+            <div className="space-y-3">
               <div className="flex items-center gap-2 font-semibold text-foreground">
-                <CheckCircle2 className="h-4 w-4" />
-                <h3>Finalidade do Uso</h3>
+                <Eye className="h-4 w-4 text-[#00bf63]" />
+                <h3>📊 O Que Usamos</h3>
               </div>
-              <p>
-                Utilizamos seus dados exclusivamente para:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Fornecer serviços de gestão financeira pessoal</li>
-                <li>Gerar análises inteligentes com IA sobre suas finanças</li>
-                <li>Melhorar a experiência e funcionalidades do sistema</li>
-                <li>Comunicar-nos com você sobre sua conta e atualizações</li>
-              </ul>
+              <div className="grid gap-2 ml-6">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#00bf63] mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">
+                    <strong className="text-foreground">Informações básicas</strong> para criar sua conta (nome, e-mail, telefone)
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#00bf63] mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">
+                    <strong className="text-foreground">Transações e categorias</strong> que você registra no app
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#00bf63] mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">
+                    <strong className="text-foreground">Preferências e configurações</strong> para personalizar sua experiência
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Compartilhamento */}
-            <div className="space-y-2">
+            {/* Como usamos */}
+            <div className="space-y-3">
               <div className="flex items-center gap-2 font-semibold text-foreground">
-                <Shield className="h-4 w-4" />
-                <h3>Compartilhamento de Dados</h3>
+                <UserCheck className="h-4 w-4 text-[#00bf63]" />
+                <h3>💡 Como Usamos</h3>
               </div>
-              <p>
-                Seus dados <strong>NÃO</strong> são vendidos ou compartilhados com terceiros
-                para fins de marketing. Compartilhamos apenas com:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Provedores de infraestrutura (hospedagem, banco de dados)</li>
-                <li>Processadores de pagamento (Hotmart)</li>
-                <li>Serviços de IA (para análises financeiras)</li>
-              </ul>
+              <div className="grid gap-2 ml-6">
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#00bf63] mt-2 flex-shrink-0" />
+                  <p className="text-muted-foreground">
+                    Fornecer o serviço de gestão financeira pessoal
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#00bf63] mt-2 flex-shrink-0" />
+                  <p className="text-muted-foreground">
+                    Gerar análises inteligentes para ajudar você a economizar
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#00bf63] mt-2 flex-shrink-0" />
+                  <p className="text-muted-foreground">
+                    Melhorar continuamente a experiência do app
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Direitos */}
-            <div className="space-y-2">
+            {/* Seus direitos */}
+            <div className="space-y-3">
               <div className="flex items-center gap-2 font-semibold text-foreground">
-                <Info className="h-4 w-4" />
-                <h3>Seus Direitos (LGPD)</h3>
+                <Shield className="h-4 w-4 text-[#00bf63]" />
+                <h3>✅ Você Tem Total Controle</h3>
               </div>
-              <p>
-                Você tem direito a:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Acessar seus dados pessoais</li>
-                <li>Corrigir dados incompletos ou incorretos</li>
-                <li>Solicitar a exclusão de seus dados</li>
-                <li>Revogar este consentimento a qualquer momento</li>
-                <li>Exportar seus dados em formato legível</li>
-              </ul>
+              <div className="p-3 bg-muted/50 rounded-lg ml-6 space-y-2">
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Você pode <strong className="text-foreground">acessar, corrigir ou excluir</strong> seus dados a qualquer momento. 
+                  Também pode <strong className="text-foreground">exportar todas as suas informações</strong> em formato legível.
+                </p>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Para exercer seus direitos, acesse <strong className="text-foreground">Meu Perfil</strong> ou entre em contato:{' '}
+                  <a 
+                    href="mailto:suporteplanejado@gmail.com" 
+                    className="text-[#00bf63] hover:underline font-medium"
+                  >
+                    suporteplanejado@gmail.com
+                  </a>
+                </p>
+              </div>
             </div>
 
-            {/* Contato */}
-            <div className="p-3 bg-muted rounded-lg space-y-1">
-              <p className="font-semibold text-foreground">
-                Dúvidas sobre seus dados?
-              </p>
-              <p className="text-xs">
-                Entre em contato conosco através do e-mail:{' '}
-                <a 
-                  href="mailto:suporteplanejado@gmail.com" 
-                  className="text-primary hover:underline"
-                >
-                  suporteplanejado@gmail.com
-                </a>
+            {/* Parceiros */}
+            <div className="p-3 bg-muted/30 rounded-lg border border-border">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">ℹ️ Compartilhamento:</strong> Utilizamos serviços de infraestrutura 
+                (Vercel, Supabase), processamento de pagamentos (Hotmart) e análise de IA. 
+                Todos seguem rigorosos padrões de segurança e privacidade.
               </p>
             </div>
           </div>
         </ScrollArea>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col sm:flex-row gap-2 pt-4">
+          <Button
+            variant="outline"
+            onClick={handleLater}
+            disabled={isLoading}
+            className="w-full sm:w-auto order-2 sm:order-1"
+          >
+            <Clock className="mr-2 h-4 w-4" />
+            Aceitar Depois
+          </Button>
           <Button
             onClick={handleConsent}
             disabled={isLoading}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-[#00bf63] hover:bg-[#00a555] order-1 sm:order-2"
             size="lg"
           >
             {isLoading ? (
@@ -182,7 +214,7 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
             ) : (
               <>
                 <CheckCircle2 className="mr-2 h-4 w-4" />
-                Li e Concordo
+                Aceitar e Continuar
               </>
             )}
           </Button>
