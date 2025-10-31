@@ -2,7 +2,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { prisma, withRetry } from '@/lib/db'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 
 export default async function DashboardPage({

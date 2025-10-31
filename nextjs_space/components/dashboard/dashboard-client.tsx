@@ -1,10 +1,12 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, DollarSign, PieChart, LineChart, Brain, Plus, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { LgpdConsentModal } from '@/components/auth/lgpd-consent-modal'
+import { useSession } from 'next-auth/react'
 
 // Importar Chart.js dinamicamente para evitar problemas com SSR
 const FinancialChartsChartJS = dynamic(() => import('./financial-charts-chartjs'), {
@@ -66,6 +68,40 @@ export function DashboardClient({ data }: { data: DashboardData }) {
   const [selectedMonth, setSelectedMonth] = useState(data.selectedMonth)
   const [selectedYear, setSelectedYear] = useState(data.selectedYear)
   const [isLoading, setIsLoading] = useState(false)
+  const [showLgpdModal, setShowLgpdModal] = useState(false)
+  const [lgpdCheckDone, setLgpdCheckDone] = useState(false)
+  const { data: session, update: updateSession } = useSession() || {}
+
+  // Verificar se o usuário já deu consentimento LGPD
+  useEffect(() => {
+    const checkLgpdConsent = async () => {
+      try {
+        const response = await fetch('/api/user/consent')
+        const data = await response.json()
+        
+        if (!data.hasConsent) {
+          setShowLgpdModal(true)
+        }
+        
+        setLgpdCheckDone(true)
+      } catch (error) {
+        console.error('Erro ao verificar consentimento LGPD:', error)
+        setLgpdCheckDone(true)
+      }
+    }
+
+    if (session?.user && !lgpdCheckDone) {
+      checkLgpdConsent()
+    }
+  }, [session, lgpdCheckDone])
+
+  const handleLgpdConsentGiven = async () => {
+    setShowLgpdModal(false)
+    // Atualizar sessão para refletir o consentimento
+    if (updateSession) {
+      await updateSession()
+    }
+  }
 
   // Recarregar dados quando mês/ano mudar
   const handleMonthYearChange = async (month: number, year: number) => {
@@ -414,6 +450,12 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           </div>
         </div>
       </div>
+
+      {/* Modal de Consentimento LGPD */}
+      <LgpdConsentModal 
+        isOpen={showLgpdModal} 
+        onConsentGiven={handleLgpdConsentGiven} 
+      />
     </div>
   )
 }

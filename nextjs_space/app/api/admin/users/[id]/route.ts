@@ -36,12 +36,19 @@ export async function PATCH(
         role: role !== undefined ? role : undefined
       },
       select: {
+        // LGPD: Retornar apenas campos administrativos
         id: true,
-        email: true,
         name: true,
+        email: true,
+        phone: true,
         role: true,
+        status: true,
         isActive: true,
-        createdAt: true
+        hotmartId: true,
+        createdAt: true,
+        updatedAt: true,
+        canceledAt: true,
+        lgpdConsentAt: true
       }
     })
 

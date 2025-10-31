@@ -52,6 +52,7 @@ model User {
   resetToken    String?    // Token para recuperação de senha
   resetTokenExpiry DateTime? // Expiração do token de recuperação
   firstLogin    Boolean    @default(true) // Flag para forçar troca de senha no primeiro login
+  lgpdConsentAt DateTime?  // Data/hora do consentimento LGPD
   accounts      Account[]
   sessions      Session[]
 

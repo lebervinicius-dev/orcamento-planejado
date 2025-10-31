@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }
 
-    // Busca todos os usuários
+    // Busca todos os usuários - APENAS campos permitidos por LGPD
+    // Admin NÃO pode ver: transações, categorias, análises, investimentos, metas
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -35,12 +36,17 @@ export async function GET(request: NextRequest) {
         email: true,
         phone: true,
         role: true,
+        status: true,
         isActive: true,
         hotmartId: true,
         createdAt: true,
+        updatedAt: true,
+        canceledAt: true,
+        lgpdConsentAt: true,
+        // Contadores apenas para métricas gerais (não dados sensíveis)
         _count: {
           select: {
-            transactions: true
+            sessions: true // Apenas contagem de sessões ativas
           }
         }
       },
