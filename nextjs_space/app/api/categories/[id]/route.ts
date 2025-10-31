@@ -123,19 +123,48 @@ export async function DELETE(
     })
 
     if (transactionCount > 0) {
-      return NextResponse.json(
-        { error: 'Não é possível excluir categoria que possui transações' },
-        { status: 400 }
-      )
+      // Buscar ou criar categoria "Desconhecida" do mesmo tipo
+      let unknownCategory = await prisma.category.findFirst({
+        where: {
+          userId: session.user.id,
+          name: 'Desconhecida',
+          type: existingCategory.type,
+        },
+      })
+
+      if (!unknownCategory) {
+        unknownCategory = await prisma.category.create({
+          data: {
+            name: 'Desconhecida',
+            type: existingCategory.type,
+            color: '#737373',
+            userId: session.user.id,
+          },
+        })
+      }
+
+      // Migrar todas as transações para a categoria "Desconhecida"
+      await prisma.transaction.updateMany({
+        where: {
+          categoryId: params.id,
+        },
+        data: {
+          categoryId: unknownCategory.id,
+        },
+      })
     }
 
+    // Excluir a categoria
     await prisma.category.delete({
       where: {
         id: params.id,
       },
     })
 
-    return NextResponse.json({ message: 'Categoria excluída com sucesso' })
+    return NextResponse.json({ 
+      message: 'Categoria excluída com sucesso',
+      migratedTransactions: transactionCount 
+    })
   } catch (error) {
     console.error('Erro ao excluir categoria:', error)
     return NextResponse.json(

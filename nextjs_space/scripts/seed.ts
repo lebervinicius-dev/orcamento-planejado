@@ -47,18 +47,22 @@ async function main() {
 
   console.log(`✅ Usuário admin criado: ${adminUser.email}`)
 
-  // Categorias padrão para receitas (apenas 3)
+  // Categorias padrão para receitas (5 categorias)
   const incomeCategories = [
     { name: 'Salário', color: '#00bf63' },
     { name: 'Bonificações', color: '#20c997' },
-    { name: 'Dividendos', color: '#6f42c1' },
+    { name: 'Freelance', color: '#17a2b8' },
+    { name: 'Investimentos', color: '#6f42c1' },
+    { name: 'Outros', color: '#28a745' },
   ]
 
-  // Categorias padrão para despesas (apenas 3)
+  // Categorias padrão para despesas (5 categorias)
   const expenseCategories = [
     { name: 'Moradia', color: '#6c757d' },
-    { name: 'Mercado', color: '#dc3545' },
+    { name: 'Alimentação', color: '#dc3545' },
     { name: 'Transporte', color: '#ffc107' },
+    { name: 'Saúde', color: '#e83e8c' },
+    { name: 'Lazer', color: '#fd7e14' },
   ]
 
   // Criar categorias de receita
@@ -108,8 +112,8 @@ async function main() {
     where: { userId: testUser.id, name: 'Salário', type: TransactionType.INCOME }
   })
 
-  const mercadoCategory = await prisma.category.findFirst({
-    where: { userId: testUser.id, name: 'Mercado', type: TransactionType.EXPENSE }
+  const alimentacaoCategory = await prisma.category.findFirst({
+    where: { userId: testUser.id, name: 'Alimentação', type: TransactionType.EXPENSE }
   })
 
   const transporteCategory = await prisma.category.findFirst({
@@ -163,7 +167,7 @@ async function main() {
       description: 'Compras do mercado',
       date: new Date(2025, 0, 3),
       type: TransactionType.EXPENSE,
-      categoryId: mercadoCategory?.id || '',
+      categoryId: alimentacaoCategory?.id || '',
       userId: testUser.id,
     },
     {
@@ -179,7 +183,7 @@ async function main() {
       description: 'Feira da semana',
       date: new Date(2025, 0, 8),
       type: TransactionType.EXPENSE,
-      categoryId: mercadoCategory?.id || '',
+      categoryId: alimentacaoCategory?.id || '',
       userId: testUser.id,
     },
 
@@ -197,7 +201,7 @@ async function main() {
       description: 'Mercado mensal',
       date: new Date(2024, 11, 10),
       type: TransactionType.EXPENSE,
-      categoryId: mercadoCategory?.id || '',
+      categoryId: alimentacaoCategory?.id || '',
       userId: testUser.id,
     },
     {

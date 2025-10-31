@@ -1,10 +1,11 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Filter, Search, Eye, Edit, Trash2, TrendingUp, TrendingDown } from 'lucide-react'
+import { Plus, Filter, Search, Eye, Edit, Trash2, TrendingUp, TrendingDown, Download } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 interface Transaction {
   id: string
@@ -49,6 +50,58 @@ export function TransactionsClient({
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [selectedType, setSelectedType] = useState(filters.type || 'all')
   const [selectedCategory, setSelectedCategory] = useState(filters.category || 'all')
+  const [isExportOpen, setIsExportOpen] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const exportRef = useRef<HTMLDivElement>(null)
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(event.target as Node)) {
+        setIsExportOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleExport = async (format: 'xlsx' | 'pdf') => {
+    setIsExporting(true)
+    try {
+      // Obter mês e ano atual
+      const now = new Date()
+      const month = now.getMonth() + 1
+      const year = now.getFullYear()
+
+      const response = await fetch(
+        `/api/transactions/export?format=${format}&month=${month}&year=${year}`
+      )
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao exportar')
+      }
+
+      // Criar blob e fazer download
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `extrato-${month}-${year}.${format}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast.success(`Extrato exportado com sucesso!`)
+      setIsExportOpen(false)
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao exportar extrato')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleFilterChange = () => {
     const params = new URLSearchParams()
@@ -99,7 +152,38 @@ export function TransactionsClient({
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Botão de Exportação */}
+          <div className="relative" ref={exportRef}>
+            <button
+              onClick={() => setIsExportOpen(!isExportOpen)}
+              className="btn-outline flex items-center space-x-2"
+              disabled={isExporting}
+            >
+              <Download className="h-4 w-4" />
+              <span>{isExporting ? 'Exportando...' : 'Exportar'}</span>
+            </button>
+            
+            {isExportOpen && !isExporting && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#1a1f2e] border border-[#2d3748] rounded-lg shadow-lg z-10">
+                <div className="py-1">
+                  <button
+                    onClick={() => handleExport('xlsx')}
+                    className="w-full text-left px-4 py-2 text-white hover:bg-[#252d3d] transition-colors"
+                  >
+                    📊 Excel (.xlsx)
+                  </button>
+                  <button
+                    onClick={() => handleExport('pdf')}
+                    className="w-full text-left px-4 py-2 text-white hover:bg-[#252d3d] transition-colors"
+                  >
+                    📄 PDF
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             className="btn-outline flex items-center space-x-2"
