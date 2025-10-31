@@ -275,6 +275,96 @@ Seus dados financeiros de janeiro mostram uma **gestão equilibrada** das finan�
   })
 
   console.log('✅ Análise de IA de exemplo criada')
+
+  // Criar metas padrão
+  const defaultGoals = [
+    { name: 'Reserva de Emergência', targetAmount: 20000 },
+    { name: 'Viagem', targetAmount: 10000 },
+    { name: 'Aposentadoria', targetAmount: 500000 },
+    { name: 'Educação', targetAmount: 50000 },
+    { name: 'Independência Financeira', targetAmount: 1000000 },
+  ]
+
+  for (const goalData of defaultGoals) {
+    await prisma.goal.create({
+      data: {
+        ...goalData,
+        userId: testUser.id,
+      },
+    })
+  }
+
+  console.log('✅ Metas padrão criadas')
+
+  // Buscar algumas metas para vincular investimentos de exemplo
+  const reservaEmergencia = await prisma.goal.findFirst({
+    where: { userId: testUser.id, name: 'Reserva de Emergência' }
+  })
+
+  const viagem = await prisma.goal.findFirst({
+    where: { userId: testUser.id, name: 'Viagem' }
+  })
+
+  // Criar investimentos de exemplo
+  const investmentsData = [
+    {
+      name: 'Tesouro Selic 2027',
+      amount: 5000,
+      category: 'Renda Fixa',
+      date: new Date(2025, 0, 10),
+      goalId: reservaEmergencia?.id || null,
+      userId: testUser.id,
+    },
+    {
+      name: 'CDB Banco XYZ',
+      amount: 3000,
+      category: 'Renda Fixa',
+      date: new Date(2025, 0, 15),
+      goalId: reservaEmergencia?.id || null,
+      userId: testUser.id,
+    },
+    {
+      name: 'Ações PETR4',
+      amount: 2000,
+      category: 'Ações',
+      date: new Date(2024, 11, 20),
+      goalId: null,
+      userId: testUser.id,
+    },
+    {
+      name: 'Fundo Imobiliário HGLG11',
+      amount: 1500,
+      category: 'Fundos',
+      date: new Date(2024, 11, 25),
+      goalId: viagem?.id || null,
+      userId: testUser.id,
+    },
+  ]
+
+  for (const investment of investmentsData) {
+    const createdInvestment = await prisma.investment.create({
+      data: investment,
+    })
+
+    // Atualizar progresso da meta se houver
+    if (investment.goalId) {
+      const goal = await prisma.goal.findUnique({
+        where: { id: investment.goalId },
+      })
+
+      if (goal) {
+        await prisma.goal.update({
+          where: { id: investment.goalId },
+          data: {
+            progress: Number(goal.progress) + Number(investment.amount),
+          },
+        })
+      }
+    }
+  }
+
+  console.log('✅ Investimentos de exemplo criados')
+
   console.log('\n🎉 Seed concluído com sucesso!')
   console.log(`\n📋 Dados criados:`)
   console.log(`   - Usuário teste: ${testUser.email} (senha: johndoe123)`)
@@ -282,6 +372,8 @@ Seus dados financeiros de janeiro mostram uma **gestão equilibrada** das finan�
   console.log(`   - Categorias: ${incomeCategories.length + expenseCategories.length}`)
   console.log(`   - Transações: ${transactionsData.length}`)
   console.log(`   - Análises IA: 1`)
+  console.log(`   - Metas: ${defaultGoals.length}`)
+  console.log(`   - Investimentos: ${investmentsData.length}`)
   console.log(`\n👤 Para acessar o painel admin, faça login com:`)
   console.log(`   Email: admin@orcamento.com`)
   console.log(`   Senha: admin123`)

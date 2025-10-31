@@ -59,6 +59,8 @@ model User {
   transactions  Transaction[]
   categories    Category[]
   aiAnalyses    AiAnalysis[]
+  investments   Investment[]
+  goals         Goal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,6 +129,40 @@ model AiAnalysis {
 
   @@index([userId, createdAt]) // Index para histórico de análises
   @@index([userId, periodStart, periodEnd]) // Index para consultas por período
+}
+
+model Investment {
+  id          String   @id @default(cuid())
+  name        String
+  amount      Decimal  @db.Decimal(12, 2)
+  date        DateTime @default(now())
+  category    String   // Categoria de investimento (Renda Fixa, Ações, etc)
+  goalId      String?
+  userId      String
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal Goal? @relation(fields: [goalId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+model Goal {
+  id            String   @id @default(cuid())
+  name          String
+  targetAmount  Decimal  @db.Decimal(12, 2)
+  progress      Decimal  @db.Decimal(12, 2) @default(0)
+  userId        String
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investments Investment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 enum TransactionType {

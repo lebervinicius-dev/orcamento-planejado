@@ -16,7 +16,8 @@ import {
   Menu, 
   X,
   Shield,
-  Settings
+  Settings,
+  TrendingUp
 } from 'lucide-react'
 import { ProfileDrawer } from '@/components/profile/profile-drawer'
 import {
@@ -47,6 +48,12 @@ export function DashboardNav() {
       href: '/dashboard/transactions', 
       icon: Receipt,
       tooltip: 'Gerencie suas receitas e despesas' 
+    },
+    { 
+      name: 'Investimentos', 
+      href: '/dashboard/investments', 
+      icon: TrendingUp,
+      tooltip: 'Gerencie seus investimentos e metas' 
     },
     { 
       name: 'Categorias', 
