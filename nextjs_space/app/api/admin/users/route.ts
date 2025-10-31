@@ -46,7 +46,10 @@ export async function GET(request: NextRequest) {
         // Contadores apenas para métricas gerais (não dados sensíveis)
         _count: {
           select: {
-            sessions: true // Apenas contagem de sessões ativas
+            sessions: true,
+            transactions: true,
+            categories: true,
+            investments: true
           }
         }
       },
