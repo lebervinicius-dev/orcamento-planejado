@@ -90,8 +90,11 @@ export function LgpdConsentModal({ isOpen, onConsentGiven }: LgpdConsentModalPro
             <div className="p-4 bg-gradient-to-r from-[#00bf63]/10 to-[#00bf63]/5 rounded-lg border border-[#00bf63]/20">
               <div className="flex items-start gap-3">
                 <Lock className="h-5 w-5 text-[#00bf63] mt-0.5 flex-shrink-0" />
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <h3 className="font-semibold text-foreground">🔒 Seus Dados Estão Seguros</h3>
+                  <p className="text-foreground leading-relaxed font-medium">
+                    <strong>Somente você tem acesso às suas transações e informações financeiras.</strong> Ninguém mais pode visualizá-las, nem mesmo outros usuários.
+                  </p>
                   <p className="text-muted-foreground leading-relaxed">
                     Utilizamos criptografia de ponta e servidores seguros. Seus dados financeiros 
                     <strong className="text-foreground"> nunca serão vendidos ou compartilhados</strong> com terceiros para marketing.
