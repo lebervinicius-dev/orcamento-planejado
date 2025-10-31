@@ -7,7 +7,8 @@ const prisma = new PrismaClient()
 // Define TransactionType enum locally
 enum TransactionType {
   INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE'
+  EXPENSE = 'EXPENSE',
+  INVESTMENT = 'INVESTMENT'
 }
 
 async function main() {

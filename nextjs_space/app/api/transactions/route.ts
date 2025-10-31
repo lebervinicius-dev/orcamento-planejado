@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['INCOME', 'EXPENSE'].includes(type)) {
+    if (!['INCOME', 'EXPENSE', 'INVESTMENT'].includes(type)) {
       return NextResponse.json(
         { error: 'Tipo inválido' },
         { status: 400 }
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       userId: session.user.id,
     }
 
-    if (type && ['INCOME', 'EXPENSE'].includes(type)) {
+    if (type && ['INCOME', 'EXPENSE', 'INVESTMENT'].includes(type)) {
       where.type = type
     }
 

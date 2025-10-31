@@ -12,13 +12,10 @@ export default async function NewTransactionPage() {
     redirect('/auth/login')
   }
 
-  // Buscar categorias do usuário (apenas INCOME e EXPENSE, não INVESTMENT)
+  // Buscar categorias do usuário (todos os tipos)
   const categories = await prisma.category.findMany({
     where: {
       userId: session.user.id,
-      type: {
-        in: ['INCOME', 'EXPENSE'],
-      },
     },
     orderBy: [
       { type: 'asc' },

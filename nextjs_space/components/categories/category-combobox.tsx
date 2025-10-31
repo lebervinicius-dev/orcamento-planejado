@@ -23,7 +23,7 @@ import { toast } from 'react-hot-toast'
 interface Category {
   id: string
   name: string
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   color?: string | null
 }
 
@@ -31,7 +31,7 @@ interface CategoryComboboxProps {
   categories: Category[]
   value: string
   onChange: (value: string) => void
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   onCategoryCreated?: () => void
 }
 

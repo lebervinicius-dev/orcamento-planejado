@@ -31,7 +31,7 @@ export default async function TransactionsPage({
     userId: session.user.id,
   }
 
-  if (searchParams.type && ['INCOME', 'EXPENSE'].includes(searchParams.type)) {
+  if (searchParams.type && ['INCOME', 'EXPENSE', 'INVESTMENT'].includes(searchParams.type)) {
     where.type = searchParams.type
   }
 
@@ -55,13 +55,10 @@ export default async function TransactionsPage({
   // Contar total para paginação
   const totalTransactions = await prisma.transaction.count({ where })
 
-  // Buscar categorias para filtros (apenas INCOME e EXPENSE, não INVESTMENT)
+  // Buscar categorias para filtros (todos os tipos)
   const categories = await prisma.category.findMany({
     where: {
       userId: session.user.id,
-      type: {
-        in: ['INCOME', 'EXPENSE'],
-      },
     },
     orderBy: {
       name: 'asc',

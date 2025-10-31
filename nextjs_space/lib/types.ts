@@ -37,5 +37,6 @@ export enum UserStatus {
 // Transaction Type Enum (espelha o enum do Prisma)
 export enum TransactionType {
   INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE'
+  EXPENSE = 'EXPENSE',
+  INVESTMENT = 'INVESTMENT'
 }

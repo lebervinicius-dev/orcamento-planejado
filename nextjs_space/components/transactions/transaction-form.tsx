@@ -10,7 +10,7 @@ import { CategoryCombobox } from '@/components/categories/category-combobox'
 interface Category {
   id: string
   name: string
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   color?: string | null
 }
 
@@ -19,7 +19,7 @@ interface Transaction {
   amount: number
   description: string
   date: string
-  type: 'INCOME' | 'EXPENSE'
+  type: 'INCOME' | 'EXPENSE' | 'INVESTMENT'
   categoryId: string
 }
 

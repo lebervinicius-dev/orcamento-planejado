@@ -167,8 +167,9 @@ model Goal {
 }
 
 enum TransactionType {
-  INCOME  // Receita/Entrada
-  EXPENSE // Despesa/Saída
+  INCOME     // Receita/Entrada
+  EXPENSE    // Despesa/Saída
+  INVESTMENT // Investimento
 }
 
 enum CategoryType {
