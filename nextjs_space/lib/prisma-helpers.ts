@@ -1,128 +1,70 @@
+/**
+ * Helpers para queries do Prisma com retry automático e tratamento de erros
+ */
+import { PrismaClient } from '@prisma/client'
+import { prisma, withRetry } from './db'
 
-import 'server-only'
-import { Prisma } from '@prisma/client'
+// Re-exporta o prisma client com as melhorias
+export { prisma }
 
 /**
- * Helper para tratamento de erros do Prisma
- * Converte erros do Prisma em mensagens amigáveis
+ * Executa uma operação no banco com retry automático em caso de timeout
+ * 
+ * @example
+ * const user = await safeQuery(() => 
+ *   prisma.user.findUnique({ where: { id: userId } })
+ * )
  */
-export function handlePrismaError(error: unknown): { 
-  message: string
-  code?: string
-  statusCode: number
-} {
-  // Erro do Prisma
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    switch (error.code) {
-      case 'P2002':
-        return {
-          message: 'Já existe um registro com esses dados únicos.',
-          code: error.code,
-          statusCode: 409
-        }
-      case 'P2025':
-        return {
-          message: 'Registro não encontrado.',
-          code: error.code,
-          statusCode: 404
-        }
-      case 'P2003':
-        return {
-          message: 'Erro de relacionamento: registro relacionado não existe.',
-          code: error.code,
-          statusCode: 400
-        }
-      case 'P2014':
-        return {
-          message: 'Erro de relacionamento: registro está sendo usado por outros registros.',
-          code: error.code,
-          statusCode: 400
-        }
-      default:
-        return {
-          message: `Erro de banco de dados: ${error.message}`,
-          code: error.code,
-          statusCode: 500
-        }
-    }
-  }
-
-  // Erro de validação do Prisma
-  if (error instanceof Prisma.PrismaClientValidationError) {
-    return {
-      message: 'Dados inválidos fornecidos.',
-      statusCode: 400
-    }
-  }
-
-  // Erro de inicialização do Prisma
-  if (error instanceof Prisma.PrismaClientInitializationError) {
-    return {
-      message: 'Erro ao conectar com o banco de dados.',
-      statusCode: 503
-    }
-  }
-
-  // Erro genérico
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-      statusCode: 500
-    }
-  }
-
-  return {
-    message: 'Erro desconhecido.',
-    statusCode: 500
-  }
+export async function safeQuery<T>(operation: () => Promise<T>): Promise<T> {
+  return withRetry(operation)
 }
 
 /**
- * Wrapper seguro para operações do Prisma
- * Adiciona retry automático e tratamento de erros
+ * Executa múltiplas queries em uma transação com retry
+ * 
+ * @example
+ * const result = await safeTransaction(async (tx) => {
+ *   const user = await tx.user.update({...})
+ *   const transaction = await tx.transaction.create({...})
+ *   return { user, transaction }
+ * })
  */
-export async function safeQuery<T>(
+export async function safeTransaction<T>(
+  operation: (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => Promise<T>
+): Promise<T> {
+  return withRetry(async () => {
+    return await prisma.$transaction(async (tx) => {
+      return await operation(tx)
+    })
+  })
+}
+
+/**
+ * Verifica se o erro é relacionado a conexão/timeout
+ */
+export function isConnectionError(error: any): boolean {
+  return (
+    error?.code === 'P1017' || // Connection pool timeout
+    error?.code === 'P2024' || // Timed out fetching a new connection  
+    error?.code === 'P1001' || // Can't reach database server
+    error?.message?.includes('idle-session timeout') ||
+    error?.message?.includes('Connection terminated unexpectedly') ||
+    error?.message?.includes('ECONNREFUSED') ||
+    error?.message?.includes('ETIMEDOUT')
+  )
+}
+
+/**
+ * Tenta executar uma query e retorna null se falhar (útil para queries opcionais)
+ */
+export async function tryQuery<T>(
   operation: () => Promise<T>,
-  retries = 2
-): Promise<{ data: T | null; error: string | null; statusCode: number }> {
-  let lastError: unknown = null
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const data = await operation()
-      return { data, error: null, statusCode: 200 }
-    } catch (error) {
-      lastError = error
-
-      // Se não for erro de conexão, não tenta novamente
-      if (!(error instanceof Prisma.PrismaClientInitializationError)) {
-        break
-      }
-
-      // Aguarda antes de tentar novamente (exponential backoff)
-      if (attempt < retries) {
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000))
-      }
-    }
-  }
-
-  const errorInfo = handlePrismaError(lastError)
-  return {
-    data: null,
-    error: errorInfo.message,
-    statusCode: errorInfo.statusCode
-  }
-}
-
-/**
- * Valida se estamos em ambiente servidor
- * Lança erro se tentar usar no cliente
- */
-export function ensureServerSide(): void {
-  if (typeof window !== 'undefined') {
-    throw new Error(
-      '❌ Este código só pode ser executado no servidor! ' +
-      'Prisma Client não pode ser usado no navegador.'
-    )
+  defaultValue: T | null = null
+): Promise<T | null> {
+  try {
+    return await safeQuery(operation)
+  } catch (error) {
+    console.error('Query falhou (retornando valor padrão):', error)
+    return defaultValue
   }
 }
