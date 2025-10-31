@@ -10,6 +10,7 @@ declare module 'next-auth' {
       image?: string | null
       role: string
       isActive: boolean
+      status: string
     }
   }
 
@@ -20,6 +21,7 @@ declare module 'next-auth' {
     image?: string | null
     role?: string
     isActive?: boolean
+    status?: string
   }
 }
 
@@ -28,5 +30,6 @@ declare module 'next-auth/jwt' {
     id: string
     role: string
     isActive: boolean
+    status: string
   }
 }

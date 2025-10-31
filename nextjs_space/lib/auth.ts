@@ -51,21 +51,38 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // Se é um novo login
       if (user) {
         token.id = user.id
         
-        // Busca o role e isActive do banco
+        // Busca o role, isActive e status do banco
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true, isActive: true }
+          select: { role: true, isActive: true, status: true }
         })
         
         if (dbUser) {
           token.role = dbUser.role
           token.isActive = dbUser.isActive
+          token.status = dbUser.status
         }
       }
+      
+      // Atualiza o status a cada requisição (opcional, mas útil para pegar mudanças)
+      if (trigger === 'update' && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true, isActive: true, status: true }
+        })
+        
+        if (dbUser) {
+          token.role = dbUser.role
+          token.isActive = dbUser.isActive
+          token.status = dbUser.status
+        }
+      }
+      
       return token
     },
     async session({ session, token }) {
@@ -73,6 +90,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string
         session.user.role = token.role as string
         session.user.isActive = token.isActive as boolean
+        session.user.status = token.status as string
       }
       return session
     },
