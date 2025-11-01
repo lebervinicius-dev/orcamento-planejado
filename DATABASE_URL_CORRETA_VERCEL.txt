@@ -1,0 +1,27 @@
+
+DATABASE_URL CORRETA PARA VERCEL
+=================================
+
+COPIE EXATAMENTE ESTA URL E COLE NO VERCEL:
+
+postgresql://role_9484b0c23:eaQqYU5eW_gE6aRZJTOXP5sKzkhEA7Q5@db-9484b0c23.db002.hosteddb.reai.io:5432/9484b0c23?pgbouncer=true&connect_timeout=15&pool_timeout=15&connection_limit=10
+
+IMPORTANTE:
+- Tem que ter "?pgbouncer=true" (ESSENCIAL para Vercel!)
+- Depois tem "&connect_timeout=15"
+- Depois tem "&pool_timeout=15"
+- Depois tem "&connection_limit=10"
+
+NÃO ESQUEÇA NENHUM PARÂMETRO!
+
+COMO ATUALIZAR NO VERCEL:
+1. Vá em: https://vercel.com/vinicius-projects-c13a142e/orcamento-planejado/settings/environment-variables
+2. Encontre a variável DATABASE_URL
+3. Clique em "Edit" (ícone de lápis)
+4. APAGUE o valor atual
+5. COLE a URL completa acima
+6. Marque: ✅ Production, ✅ Preview, ✅ Development
+7. Clique em "Save"
+8. Vá em Settings → Data Cache → Purge Data Cache
+9. Force um novo deploy
+
