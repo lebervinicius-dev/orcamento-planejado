@@ -101,7 +101,7 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
   const [investmentAmount, setInvestmentAmount] = useState('')
   const [investmentCategory, setInvestmentCategory] = useState('')
   const [investmentDate, setInvestmentDate] = useState(new Date().toISOString().split('T')[0])
-  const [selectedGoalId, setSelectedGoalId] = useState<string>('')
+  const [selectedGoalId, setSelectedGoalId] = useState<string>('no-goal')
 
   // Estados do formulário de categoria
   const [newCategoryName, setNewCategoryName] = useState('')
@@ -230,7 +230,7 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
           amount: parseFloat(investmentAmount),
           category: investmentCategory,
           date: investmentDate,
-          goalId: selectedGoalId || null,
+          goalId: selectedGoalId === 'no-goal' ? null : selectedGoalId,
         }),
       })
 
@@ -239,19 +239,19 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
         setInvestments([newInvestment, ...investments])
         
         // Atualizar progresso da meta se houver
-        if (selectedGoalId) {
+        if (selectedGoalId && selectedGoalId !== 'no-goal') {
           const updatedGoals = await fetch('/api/goals').then(res => res.json())
           setGoals(updatedGoals)
-          toast.success('Progresso da meta atualizado com sucesso! 🎉')
+          toast.success('Aporte adicionado e progresso da meta atualizado! 🎉')
         } else {
-          toast.success('Investimento adicionado com sucesso! 💰')
+          toast.success('Aporte adicionado com sucesso! 💰')
         }
 
         // Limpar formulário
         setInvestmentName('')
         setInvestmentAmount('')
         setInvestmentCategory('')
-        setSelectedGoalId('')
+        setSelectedGoalId('no-goal')
         setInvestmentDate(new Date().toISOString().split('T')[0])
         setIsInvestmentDialogOpen(false)
       } else {
@@ -818,13 +818,13 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
             </div>
             <div>
               <Label htmlFor="investment-goal">Vincular à Meta (opcional)</Label>
-              <Select value={selectedGoalId || 'no-goal'} onValueChange={(value) => setSelectedGoalId(value === 'no-goal' ? '' : value)}>
+              <Select value={selectedGoalId} onValueChange={setSelectedGoalId}>
                 <SelectTrigger className="bg-[#0d0d0d] border-[#2a2a2a] text-white">
-                  <SelectValue placeholder="Nenhuma meta selecionada" />
+                  <SelectValue placeholder="Nenhuma meta" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#1a1a1a] border-[#2a2a2a]">
                   <SelectItem value="no-goal" className="text-white hover:bg-[#2a2a2a]">
-                    Nenhuma meta
+                    Sem meta (apenas aporte)
                   </SelectItem>
                   {goals.map((goal) => (
                     <SelectItem key={goal.id} value={goal.id} className="text-white hover:bg-[#2a2a2a]">
