@@ -215,8 +215,8 @@ Diretrizes:
 
 1. **Visão geral**: Compare renda e gastos em R$ (use "R$" ou "reais"), apresente o saldo mensal.
 2. **Padrões**: Identifique categorias de maior gasto e outliers (se houver).
-3. **Metas**: Se houver metas definidas, avalie o progresso e sugira ajustes realistas.
-4. **Investimentos**: Se houver investimentos, comente a diversificação da carteira (Renda Fixa, Ações, Fundos, Cripto) e sugira melhorias se necessário.
+3. **Progresso nas Metas**: Se houver metas definidas, traga um breve resumo sobre o andamento de cada meta, indicando se está no caminho certo ou se precisa de ajustes. Seja clara e objetiva.
+4. **Carteira de Investimentos**: Se houver investimentos, inclua um comentário geral sobre o portfólio, destacando de forma simples se a carteira está diversificada e equilibrada entre diferentes tipos de ativos (Renda Fixa, Ações, Fundos, Cripto). Mantenha o tom leve e consultivo.
 5. **Ações**: Proponha 2-3 micro-ajustes práticos (ex: reduzir 10% em uma categoria, criar reserva semanal).
 6. **Encerramento**: Recapitule em 3-4 bullets curtos. Feche com uma frase motivacional.
 
@@ -224,7 +224,8 @@ Limites:
 
 - Use sempre "R$" ou "reais" para valores monetários.
 - Evite jargões técnicos e recomendações de produtos específicos.
-- Resposta breve: ~180–220 palavras máximo.`
+- Mantenha o tom consultivo e educativo, com clareza e empatia.
+- Resposta breve: ~200–250 palavras máximo.`
 
     const userPrompt = `Analise os dados financeiros abaixo e forneça uma consultoria empática e prática:
 
@@ -238,7 +239,7 @@ ${JSON.stringify(payload, null, 2)}`
         Authorization: `Bearer ${process.env.ABACUSAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-mini',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -249,7 +250,9 @@ ${JSON.stringify(payload, null, 2)}`
     })
 
     if (!aiResponse.ok) {
-      throw new Error('Erro ao gerar análise com IA')
+      const errorText = await aiResponse.text()
+      console.error('Erro da API IA:', aiResponse.status, errorText)
+      throw new Error(`Erro ao gerar análise com IA: ${aiResponse.status} - ${errorText}`)
     }
 
     const aiData = await aiResponse.json()
