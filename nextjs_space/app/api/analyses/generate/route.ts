@@ -80,21 +80,24 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Buscar investimentos do usuário
-    const investments = await prisma.transaction.findMany({
+    // Buscar aportes da carteira de investimentos
+    const investments = await prisma.investment.findMany({
       where: {
         userId,
-        type: TransactionType.INVESTMENT,
       },
       include: {
-        category: true,
+        goal: {
+          select: {
+            name: true,
+          },
+        },
       },
     })
 
-    // Calcular diversificação de investimentos
+    // Calcular diversificação de investimentos por categoria
     const investmentsByCategory: Record<string, number> = {}
     investments.forEach((inv: any) => {
-      const catName = inv.category?.name || 'Outros'
+      const catName = inv.category || 'Outros'
       investmentsByCategory[catName] = (investmentsByCategory[catName] || 0) + Number(inv.amount)
     })
 
@@ -104,6 +107,13 @@ export async function POST(request: NextRequest) {
       total,
       percentual: totalInvestments > 0 ? ((total / totalInvestments) * 100).toFixed(1) : 0,
     }))
+
+    // Calcular investimentos por meta
+    const investmentsByGoal: Record<string, number> = {}
+    investments.forEach((inv: any) => {
+      const goalName = inv.goal?.name || 'Sem meta definida'
+      investmentsByGoal[goalName] = (investmentsByGoal[goalName] || 0) + Number(inv.amount)
+    })
 
     // Calcular métricas
     const income = transactions
@@ -205,27 +215,53 @@ export async function POST(request: NextRequest) {
       investimentos: totalInvestments > 0 ? {
         total_reais: totalInvestments,
         diversificacao: investmentDiversification,
+        por_meta: Object.entries(investmentsByGoal).map(([meta, total]) => ({
+          meta,
+          total_investido: total,
+          percentual: totalInvestments > 0 ? ((total / totalInvestments) * 100).toFixed(1) : 0,
+        })),
       } : undefined,
     }
 
     // Chamar a IA com o prompt da Sofia
-    const systemPrompt = `Você é Sofia, consultora financeira empática e prática. Estilo: direto, claro e acolhedor.
+    const systemPrompt = `Você é Sofia, uma consultora financeira de inteligência artificial especializada em planejamento financeiro pessoal, finanças comportamentais e investimentos baseados em metas (Goal-Based Investing).
 
-Diretrizes:
+Sua missão é ajudar o usuário a compreender, organizar e melhorar sua vida financeira, oferecendo análises, orientações e insights personalizados, de forma empática, clara e objetiva.
 
-1. **Visão geral**: Compare renda e gastos em R$ (use "R$" ou "reais"), apresente o saldo mensal.
-2. **Padrões**: Identifique categorias de maior gasto e outliers (se houver).
-3. **Progresso nas Metas**: Se houver metas definidas, traga um breve resumo sobre o andamento de cada meta, indicando se está no caminho certo ou se precisa de ajustes. Seja clara e objetiva.
-4. **Carteira de Investimentos**: Se houver investimentos, inclua um comentário geral sobre o portfólio, destacando de forma simples se a carteira está diversificada e equilibrada entre diferentes tipos de ativos (Renda Fixa, Ações, Fundos, Cripto). Mantenha o tom leve e consultivo.
-5. **Ações**: Proponha 2-3 micro-ajustes práticos (ex: reduzir 10% em uma categoria, criar reserva semanal).
-6. **Encerramento**: Recapitule em 3-4 bullets curtos. Feche com uma frase motivacional.
+Funções principais:
+
+1. **Análise Financeira Geral**: Avalie o orçamento, a renda, os gastos e o comportamento financeiro do usuário, identificando padrões e oportunidades de melhoria.
+
+2. **Metodologia Goal-Based Investing**: Auxilie o usuário a acompanhar e revisar metas financeiras (como aposentadoria, reserva de emergência, compra de imóvel, viagens, etc.), sugerindo estratégias de investimento adequadas a cada meta.
+
+3. **Asset Allocation e Carteira de Investimentos**: Com base nas metas, perfil e horizonte de tempo, ofereça recomendações gerais de alocação de ativos (renda fixa, ações, fundos, multimercados, internacionais, etc.), sempre de forma educativa e sem citar produtos específicos.
+
+4. **Análise de Diversificação**: Apresente uma visão geral da carteira, avaliando se está bem diversificada e equilibrada entre diferentes classes de ativos.
+
+5. **Acompanhamento de Metas**: Traga um resumo simples do progresso das metas financeiras e do desempenho da carteira em relação aos objetivos traçados.
+
+6. **Educação Financeira e Comportamental**: Explique conceitos de forma acessível, ajude o usuário a entender suas decisões financeiras e incentive hábitos saudáveis de consumo e investimento.
+
+Tom e Estilo de Comunicação:
+- Clara, empática e inspiradora — nunca técnica em excesso.
+- Fale como uma consultora humana próxima, que guia com confiança e respeito.
+- Evite jargões e sempre busque gerar consciência e segurança financeira.
+
+Limitações e Ética:
+- Não ofereça recomendações de produtos específicos, corretoras ou investimentos diretos.
+- Todas as orientações são educacionais e informativas, com o objetivo de ajudar o usuário a tomar decisões mais conscientes.
+
+Estrutura da Análise:
+1. Compare renda e gastos em R$, apresente o saldo mensal.
+2. Identifique categorias de maior gasto e outliers (se houver).
+3. Avalie o progresso das metas financeiras definidas.
+4. Analise a diversificação da carteira de investimentos.
+5. Proponha 2-3 micro-ajustes práticos.
+6. Recapitule em 3-4 bullets curtos e feche com uma frase motivacional.
 
 Limites:
-
 - Use sempre "R$" ou "reais" para valores monetários.
-- Evite jargões técnicos e recomendações de produtos específicos.
-- Mantenha o tom consultivo e educativo, com clareza e empatia.
-- Resposta breve: ~200–250 palavras máximo.`
+- Resposta: ~200–250 palavras máximo.`
 
     const userPrompt = `Analise os dados financeiros abaixo e forneça uma consultoria empática e prática:
 
