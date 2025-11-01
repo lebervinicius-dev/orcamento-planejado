@@ -69,6 +69,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Buscar metas do usuário
+    const goals = await prisma.goal.findMany({
+      where: { userId },
+      select: {
+        name: true,
+        targetAmount: true,
+        progress: true,
+      },
+    })
+
+    // Buscar investimentos do usuário
+    const investments = await prisma.transaction.findMany({
+      where: {
+        userId,
+        type: 'INVESTMENT',
+      },
+      include: {
+        category: true,
+      },
+    })
+
+    // Calcular diversificação de investimentos
+    const investmentsByCategory: Record<string, number> = {}
+    investments.forEach((inv: any) => {
+      const catName = inv.category?.name || 'Outros'
+      investmentsByCategory[catName] = (investmentsByCategory[catName] || 0) + Number(inv.amount)
+    })
+
+    const totalInvestments = Object.values(investmentsByCategory).reduce((sum, val) => sum + val, 0)
+    const investmentDiversification = Object.entries(investmentsByCategory).map(([categoria, total]) => ({
+      categoria,
+      total,
+      percentual: totalInvestments > 0 ? ((total / totalInvestments) * 100).toFixed(1) : 0,
+    }))
+
     // Calcular métricas
     const income = transactions
       .filter((t: any) => t.type === 'INCOME')
@@ -141,41 +176,54 @@ export async function POST(request: NextRequest) {
         mes: `${year}-${String(month).padStart(2, '0')}`,
       },
       renda: {
-        total_mes: income,
-        media_semanal_estimada: weeklyIncomeAvg,
-        media_diaria_estimada: dailyIncomeAvg,
+        total_mes_reais: income,
+        media_semanal_reais: weeklyIncomeAvg,
+        media_diaria_reais: dailyIncomeAvg,
         top_categorias: topIncomeCategories,
       },
       gastos: {
-        total_mes: expenses,
-        media_semanal_estimada: weeklyExpenseAvg,
-        media_diaria_estimada: dailyExpenseAvg,
+        total_mes_reais: expenses,
+        media_semanal_reais: weeklyExpenseAvg,
+        media_diaria_reais: dailyExpenseAvg,
         top_categorias: topExpenseCategories,
         outliers: outliers.length > 0 ? outliers : undefined,
       },
       saldo: {
-        mes: balance,
-        media_semanal_estimada: weeklyBalanceAvg,
-        media_diaria_estimada: dailyBalanceAvg,
+        mes_reais: balance,
+        media_semanal_reais: weeklyBalanceAvg,
+        media_diaria_reais: dailyBalanceAvg,
       },
+      metas: goals.length > 0 ? goals.map(g => ({
+        nome: g.name,
+        meta_reais: Number(g.targetAmount),
+        atual_reais: Number(g.progress),
+        progresso_percentual: Number(g.targetAmount) > 0 
+          ? ((Number(g.progress) / Number(g.targetAmount)) * 100).toFixed(1) 
+          : 0,
+      })) : undefined,
+      investimentos: totalInvestments > 0 ? {
+        total_reais: totalInvestments,
+        diversificacao: investmentDiversification,
+      } : undefined,
     }
 
     // Chamar a IA com o prompt da Sofia
-    const systemPrompt = `Você é a Consultora Virtual Sofia, psicóloga financeira e educadora em finanças pessoais. Sua missão é trazer clareza emocional e prática às finanças do usuário. Estilo: empático, observador, conciso e sem julgamentos. Foque nos padrões de comportamento por trás dos números e em pequenos ajustes sustentáveis.
+    const systemPrompt = `Você é Sofia, consultora financeira empática e prática. Estilo: direto, claro e acolhedor.
 
-Diretrizes de resposta:
+Diretrizes:
 
-1. Comece com um espelho objetivo: compare renda e gastos do mês atual, apresente o saldo e a visão semanal/diária (médias/estimativas).
-2. Interprete padrões de comportamento de forma cuidadosa: ritmo de gastos, categorias que concentram emoções (conforto, urgência, status), presença de 'picos' (outliers) e como reduzi-los sem sensação de perda.
-3. Orçamento como cuidado: proponha micro-acordos realistas (ex.: reduzir 10–15% de uma categoria emocional, criar mini-buffer para imprevistos) e rotinas leves (revisão semanal de 10 minutos).
-4. Mentalidade: trabalhe gatilhos, expectativas e significado do dinheiro (segurança, autonomia, prazer); evite culpa e prescrição rígida.
-5. Recapitule em bullets ao final (3–6 bullets curtos). Feche com uma frase motivacional serena, voltada à prosperidade como bem-estar e constância.
+1. **Visão geral**: Compare renda e gastos em R$ (use "R$" ou "reais"), apresente o saldo mensal.
+2. **Padrões**: Identifique categorias de maior gasto e outliers (se houver).
+3. **Metas**: Se houver metas definidas, avalie o progresso e sugira ajustes realistas.
+4. **Investimentos**: Se houver investimentos, comente a diversificação da carteira (Renda Fixa, Ações, Fundos, Cripto) e sugira melhorias se necessário.
+5. **Ações**: Proponha 2-3 micro-ajustes práticos (ex: reduzir 10% em uma categoria, criar reserva semanal).
+6. **Encerramento**: Recapitule em 3-4 bullets curtos. Feche com uma frase motivacional.
 
 Limites:
 
-- Evite jargões técnicos e recomendações de produtos de investimento.
-- Não peça dados sensíveis. Se faltarem dados, assuma estimativas e diga isso.
-- Resposta breve: ~220–280 palavras.`
+- Use sempre "R$" ou "reais" para valores monetários.
+- Evite jargões técnicos e recomendações de produtos específicos.
+- Resposta breve: ~180–220 palavras máximo.`
 
     const userPrompt = `Analise os dados financeiros abaixo e forneça uma consultoria empática e prática:
 
@@ -195,7 +243,7 @@ ${JSON.stringify(payload, null, 2)}`
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.7,
-        max_tokens: 800,
+        max_tokens: 600,
       }),
     })
 

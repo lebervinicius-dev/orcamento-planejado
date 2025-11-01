@@ -46,8 +46,7 @@ export async function POST(request: NextRequest) {
     // Criar categorias padrão para o novo usuário
     const incomeCategories = [
       { name: 'Salário', color: '#00bf63' },
-      { name: 'Vale', color: '#20c997' },
-      { name: 'Comissão', color: '#17a2b8' },
+      { name: 'Freelance', color: '#20c997' },
       { name: 'Bonificação', color: '#6f42c1' },
       { name: 'Renda Extra', color: '#28a745' },
     ]
@@ -62,46 +61,45 @@ export async function POST(request: NextRequest) {
 
     const investmentCategories = [
       { name: 'Renda Fixa', color: '#00bf63' },
-      { name: 'Ações', color: '#20c997' },
       { name: 'Fundos', color: '#6f42c1' },
+      { name: 'Ações', color: '#20c997' },
       { name: 'Cripto', color: '#ffc107' },
       { name: 'Outros', color: '#737373' },
     ]
 
-    // Criar categorias de receita
-    for (const category of incomeCategories) {
-      await prisma.category.create({
-        data: {
-          name: category.name,
+    // Criar todas as categorias de uma vez (mais eficiente)
+    try {
+      const allCategories = [
+        ...incomeCategories.map(cat => ({
+          name: cat.name,
           type: 'INCOME' as any,
-          color: category.color,
+          color: cat.color,
           userId: user.id,
-        },
-      })
-    }
-
-    // Criar categorias de despesa
-    for (const category of expenseCategories) {
-      await prisma.category.create({
-        data: {
-          name: category.name,
+        })),
+        ...expenseCategories.map(cat => ({
+          name: cat.name,
           type: 'EXPENSE' as any,
-          color: category.color,
+          color: cat.color,
           userId: user.id,
-        },
-      })
-    }
-
-    // Criar categorias de investimento
-    for (const category of investmentCategories) {
-      await prisma.category.create({
-        data: {
-          name: category.name,
+        })),
+        ...investmentCategories.map(cat => ({
+          name: cat.name,
           type: 'INVESTMENT' as any,
-          color: category.color,
+          color: cat.color,
           userId: user.id,
-        },
-      })
+        })),
+      ]
+
+      await Promise.all(
+        allCategories.map(categoryData =>
+          prisma.category.create({ data: categoryData })
+        )
+      )
+
+      console.log(`✅ ${allCategories.length} categorias padrão criadas para usuário ${user.id}`)
+    } catch (categoryError) {
+      console.error('⚠️ Erro ao criar categorias padrão:', categoryError)
+      // Não falhar o signup se categorias falharem, mas logar o erro
     }
 
     return NextResponse.json(
