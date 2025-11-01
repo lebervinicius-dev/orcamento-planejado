@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from 'next/server'
 import bcryptjs from 'bcryptjs'
 import { prisma } from '@/lib/db'
+import { CategoryType } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,19 +73,19 @@ export async function POST(request: NextRequest) {
       const allCategories = [
         ...incomeCategories.map(cat => ({
           name: cat.name,
-          type: 'INCOME' as any,
+          type: CategoryType.INCOME,
           color: cat.color,
           userId: user.id,
         })),
         ...expenseCategories.map(cat => ({
           name: cat.name,
-          type: 'EXPENSE' as any,
+          type: CategoryType.EXPENSE,
           color: cat.color,
           userId: user.id,
         })),
         ...investmentCategories.map(cat => ({
           name: cat.name,
-          type: 'INVESTMENT' as any,
+          type: CategoryType.INVESTMENT,
           color: cat.color,
           userId: user.id,
         })),

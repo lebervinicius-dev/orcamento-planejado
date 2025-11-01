@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { CategoryType } from '@prisma/client'
+
+// Valores válidos para validação
+const VALID_CATEGORY_TYPES = [CategoryType.INCOME, CategoryType.EXPENSE, CategoryType.INVESTMENT]
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['INCOME', 'EXPENSE', 'INVESTMENT'].includes(type)) {
+    if (!VALID_CATEGORY_TYPES.includes(type)) {
       return NextResponse.json(
         { error: 'Tipo inválido' },
         { status: 400 }
@@ -89,7 +93,7 @@ export async function GET(request: NextRequest) {
       userId: session.user.id,
     }
 
-    if (type && ['INCOME', 'EXPENSE', 'INVESTMENT'].includes(type)) {
+    if (type && VALID_CATEGORY_TYPES.includes(type as CategoryType)) {
       where.type = type
     }
 

@@ -4,6 +4,10 @@ import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { TransactionsClient } from '@/components/transactions/transactions-client'
+import { TransactionType } from '@prisma/client'
+
+// Valores válidos para validação
+const VALID_TRANSACTION_TYPES = [TransactionType.INCOME, TransactionType.EXPENSE, TransactionType.INVESTMENT]
 
 interface SearchParams {
   type?: string
@@ -31,7 +35,7 @@ export default async function TransactionsPage({
     userId: session.user.id,
   }
 
-  if (searchParams.type && ['INCOME', 'EXPENSE', 'INVESTMENT'].includes(searchParams.type)) {
+  if (searchParams.type && VALID_TRANSACTION_TYPES.includes(searchParams.type as TransactionType)) {
     where.type = searchParams.type
   }
 

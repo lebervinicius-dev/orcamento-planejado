@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { TransactionType } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
     const investments = await prisma.transaction.findMany({
       where: {
         userId,
-        type: 'INVESTMENT',
+        type: TransactionType.INVESTMENT,
       },
       include: {
         category: true,
@@ -106,11 +107,11 @@ export async function POST(request: NextRequest) {
 
     // Calcular métricas
     const income = transactions
-      .filter((t: any) => t.type === 'INCOME')
+      .filter((t: any) => t.type === TransactionType.INCOME)
       .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
 
     const expenses = transactions
-      .filter((t: any) => t.type === 'EXPENSE')
+      .filter((t: any) => t.type === TransactionType.EXPENSE)
       .reduce((sum: any, t: any) => sum + Number(t.amount), 0)
 
     const balance = income - expenses
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
     // Top categorias de renda
     const incomeByCategory: Record<string, number> = {}
     transactions
-      .filter((t: any) => t.type === 'INCOME')
+      .filter((t: any) => t.type === TransactionType.INCOME)
       .forEach((t: any) => {
         const catName = t.category?.name || 'Sem categoria'
         incomeByCategory[catName] = (incomeByCategory[catName] || 0) + Number(t.amount)
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
     // Top categorias de despesa
     const expenseByCategory: Record<string, number> = {}
     transactions
-      .filter((t: any) => t.type === 'EXPENSE')
+      .filter((t: any) => t.type === TransactionType.EXPENSE)
       .forEach((t: any) => {
         const catName = t.category?.name || 'Sem categoria'
         expenseByCategory[catName] = (expenseByCategory[catName] || 0) + Number(t.amount)
@@ -155,11 +156,11 @@ export async function POST(request: NextRequest) {
 
     // Outliers (transações > 2x a média diária de despesa)
     const avgExpensePerTransaction =
-      expenses / transactions.filter((t: any) => t.type === 'EXPENSE').length || 0
+      expenses / transactions.filter((t: any) => t.type === TransactionType.EXPENSE).length || 0
     const threshold = avgExpensePerTransaction * 2
 
     const outliers = transactions
-      .filter((t: any) => t.type === 'EXPENSE' && Number(t.amount) > threshold)
+      .filter((t: any) => t.type === TransactionType.EXPENSE && Number(t.amount) > threshold)
       .sort((a: any, b: any) => Number(b.amount) - Number(a.amount))
       .slice(0, 3)
       .map((t: any) => ({
