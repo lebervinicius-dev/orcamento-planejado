@@ -1,5 +1,5 @@
 
 {
-  "buildCommand": "node scripts/check-db-url.js && prisma generate && prisma migrate deploy && npm run build",
+  "buildCommand": "node scripts/check-db-url.js && prisma migrate deploy && prisma generate && npm run build",
   "installCommand": "npm install --legacy-peer-deps"
 }
