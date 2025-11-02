@@ -121,6 +121,123 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// PUT - Atualizar investimento
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Não autorizado' },
+        { status: 401 }
+      )
+    }
+
+    const data = await request.json()
+    const { id, name, amount, category, date, goalId, oldAmount, oldGoalId } = data
+
+    if (!id || !name || !amount || !category) {
+      return NextResponse.json(
+        { error: 'Dados incompletos' },
+        { status: 400 }
+      )
+    }
+
+    // Verificar se o investimento pertence ao usuário
+    const existingInvestment = await prisma.investment.findUnique({
+      where: { id },
+    })
+
+    if (!existingInvestment || existingInvestment.userId !== session.user.id) {
+      return NextResponse.json(
+        { error: 'Investimento não encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Atualizar o investimento
+    const investment = await prisma.investment.update({
+      where: { id },
+      data: {
+        name,
+        amount,
+        category,
+        date: date ? new Date(date) : undefined,
+        goalId: goalId || null,
+      },
+      include: {
+        goal: true,
+      },
+    })
+
+    // Ajustar progresso das metas se necessário
+    const oldAmountNum = Number(oldAmount)
+    const newAmountNum = Number(amount)
+    const amountDiff = newAmountNum - oldAmountNum
+
+    // Se mudou de meta ou o valor mudou
+    if (oldGoalId !== goalId || amountDiff !== 0) {
+      // Remover do progresso da meta antiga
+      if (oldGoalId && oldGoalId !== 'no-goal') {
+        const oldGoal = await prisma.goal.findUnique({
+          where: { id: oldGoalId },
+        })
+        if (oldGoal) {
+          const newProgress = Math.max(0, Number(oldGoal.progress) - oldAmountNum)
+          await prisma.goal.update({
+            where: { id: oldGoalId },
+            data: { progress: newProgress },
+          })
+        }
+      }
+
+      // Adicionar ao progresso da nova meta
+      if (goalId && goalId !== 'no-goal') {
+        const newGoal = await prisma.goal.findUnique({
+          where: { id: goalId },
+        })
+        if (newGoal) {
+          const updatedProgress = Number(newGoal.progress) + newAmountNum
+          await prisma.goal.update({
+            where: { id: goalId },
+            data: { progress: updatedProgress },
+          })
+        }
+      }
+    } else if (goalId && goalId !== 'no-goal' && amountDiff !== 0) {
+      // Se manteve a mesma meta mas mudou o valor
+      const goal = await prisma.goal.findUnique({
+        where: { id: goalId },
+      })
+      if (goal) {
+        const updatedProgress = Number(goal.progress) + amountDiff
+        await prisma.goal.update({
+          where: { id: goalId },
+          data: { progress: Math.max(0, updatedProgress) },
+        })
+      }
+    }
+
+    // Serializar resposta
+    const serializedInvestment = {
+      ...investment,
+      amount: Number(investment.amount),
+      goal: investment.goal ? {
+        ...investment.goal,
+        targetAmount: Number(investment.goal.targetAmount),
+        progress: Number(investment.goal.progress),
+      } : null,
+    }
+
+    return NextResponse.json(serializedInvestment)
+  } catch (error) {
+    console.error('Erro ao atualizar investimento:', error)
+    return NextResponse.json(
+      { error: 'Erro ao atualizar investimento' },
+      { status: 500 }
+    )
+  }
+}
+
 // DELETE - Remover investimento
 export async function DELETE(request: NextRequest) {
   try {

@@ -91,6 +91,7 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
   const [isInvestmentDialogOpen, setIsInvestmentDialogOpen] = useState(false)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null)
 
   // Estados do formulário de meta
   const [goalName, setGoalName] = useState('')
@@ -213,6 +214,27 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
     }
   }
 
+  // Abrir modal de edição
+  const handleEditInvestment = (investment: Investment) => {
+    setEditingInvestment(investment)
+    setInvestmentName(investment.name)
+    setInvestmentAmount(investment.amount.toString())
+    setInvestmentCategory(investment.category)
+    setInvestmentDate(new Date(investment.date).toISOString().split('T')[0])
+    setSelectedGoalId(investment.goalId || 'no-goal')
+    setIsInvestmentDialogOpen(true)
+  }
+
+  // Limpar formulário de investimento
+  const clearInvestmentForm = () => {
+    setEditingInvestment(null)
+    setInvestmentName('')
+    setInvestmentAmount('')
+    setInvestmentCategory('')
+    setSelectedGoalId('no-goal')
+    setInvestmentDate(new Date().toISOString().split('T')[0])
+  }
+
   // Criar novo investimento
   const handleCreateInvestment = async () => {
     if (!investmentName || !investmentAmount || !investmentCategory) {
@@ -248,11 +270,7 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
         }
 
         // Limpar formulário
-        setInvestmentName('')
-        setInvestmentAmount('')
-        setInvestmentCategory('')
-        setSelectedGoalId('no-goal')
-        setInvestmentDate(new Date().toISOString().split('T')[0])
+        clearInvestmentForm()
         setIsInvestmentDialogOpen(false)
       } else {
         throw new Error('Erro ao criar investimento')
@@ -261,6 +279,62 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
       toast.error('Erro ao criar investimento')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Atualizar investimento existente
+  const handleUpdateInvestment = async () => {
+    if (!editingInvestment || !investmentName || !investmentAmount || !investmentCategory) {
+      toast.error('Preencha todos os campos obrigatórios')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/investments', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingInvestment.id,
+          name: investmentName,
+          amount: parseFloat(investmentAmount),
+          category: investmentCategory,
+          date: investmentDate,
+          goalId: selectedGoalId === 'no-goal' ? null : selectedGoalId,
+          oldAmount: editingInvestment.amount,
+          oldGoalId: editingInvestment.goalId,
+        }),
+      })
+
+      if (response.ok) {
+        const updatedInvestment = await response.json()
+        setInvestments(investments.map(inv => 
+          inv.id === updatedInvestment.id ? updatedInvestment : inv
+        ))
+        
+        // Atualizar metas
+        const updatedGoals = await fetch('/api/goals').then(res => res.json())
+        setGoals(updatedGoals)
+        
+        toast.success('Aporte atualizado com sucesso! ✅')
+        clearInvestmentForm()
+        setIsInvestmentDialogOpen(false)
+      } else {
+        throw new Error('Erro ao atualizar investimento')
+      }
+    } catch (error) {
+      toast.error('Erro ao atualizar investimento')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Salvar investimento (criar ou atualizar)
+  const handleSaveInvestment = () => {
+    if (editingInvestment) {
+      handleUpdateInvestment()
+    } else {
+      handleCreateInvestment()
     }
   }
 
@@ -589,18 +663,46 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="text-[#00bf63] font-semibold">
                         R$ {investment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteInvestment(investment.id)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditInvestment(investment)}
+                                className="text-[#00bf63] hover:text-[#00a855] hover:bg-[#00bf63]/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Editar aporte</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteInvestment(investment.id)}
+                                className="text-red-500 hover:text-red-600 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Excluir aporte</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -735,13 +837,22 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
         </DialogContent>
       </Dialog>
 
-      {/* Dialog de Novo Investimento */}
-      <Dialog open={isInvestmentDialogOpen} onOpenChange={setIsInvestmentDialogOpen}>
+      {/* Dialog de Novo/Editar Investimento */}
+      <Dialog 
+        open={isInvestmentDialogOpen} 
+        onOpenChange={(open) => {
+          setIsInvestmentDialogOpen(open)
+          if (!open) clearInvestmentForm()
+        }}
+      >
         <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] text-white">
           <DialogHeader>
-            <DialogTitle>Novo Aporte</DialogTitle>
+            <DialogTitle>{editingInvestment ? 'Editar Aporte' : 'Novo Aporte'}</DialogTitle>
             <DialogDescription className="text-[#737373]">
-              Registre um novo investimento ou aporte
+              {editingInvestment 
+                ? 'Atualize as informações do seu aporte' 
+                : 'Registre um novo investimento ou aporte'
+              }
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -838,17 +949,23 @@ export function InvestmentsClient({ initialGoals, initialInvestments }: Investme
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsInvestmentDialogOpen(false)}
+              onClick={() => {
+                setIsInvestmentDialogOpen(false)
+                clearInvestmentForm()
+              }}
               className="border-[#2a2a2a] text-white hover:bg-[#2a2a2a]"
             >
               Cancelar
             </Button>
             <Button
-              onClick={handleCreateInvestment}
+              onClick={handleSaveInvestment}
               disabled={isLoading}
               className="bg-[#00bf63] hover:bg-[#00a855] text-white"
             >
-              {isLoading ? 'Adicionando...' : 'Adicionar Aporte'}
+              {isLoading 
+                ? (editingInvestment ? 'Atualizando...' : 'Adicionando...') 
+                : (editingInvestment ? 'Atualizar Aporte' : 'Adicionar Aporte')
+              }
             </Button>
           </DialogFooter>
         </DialogContent>
