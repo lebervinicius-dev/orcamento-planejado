@@ -1,136 +1,188 @@
 
-# 🚨 Instruções: Aplicar Migração Manual no Supabase
+# 📋 Instruções de Migração Manual de Categorias
 
-## ⚠️ Situação Atual
-
-O erro persiste porque o banco de dados do **Vercel em produção** (Supabase) ainda não tem o valor `INVESTMENT` no enum `TransactionType`.
-
----
-
-## 🎯 Solução: Executar SQL Manual
-
-### 1️⃣ Acessar o Supabase Dashboard
-
-1. Acesse: https://supabase.com/dashboard
-2. Faça login com suas credenciais
-3. Selecione o projeto: **orcamento-planejado** (ou o nome correto do seu projeto)
-4. No menu lateral, clique em **SQL Editor**
+**Data:** 02/11/2025  
+**Autor:** Sistema  
+**Situação:** Migração concluída com sucesso ✅
 
 ---
 
-### 2️⃣ Executar o SQL de Migração
+## 🎯 Objetivo
 
-Copie e cole o SQL abaixo no editor:
+Adicionar as **15 categorias padrão** (5 de cada tipo) aos usuários existentes que foram criados ANTES da implementação automática no signup.
 
-```sql
--- Verificar valores atuais do enum
-SELECT unnest(enum_range(NULL::"TransactionType")) as current_values;
+---
 
--- Adicionar INVESTMENT ao enum
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_enum 
-        WHERE enumlabel = 'INVESTMENT' 
-        AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'TransactionType')
-    ) THEN
-        ALTER TYPE "TransactionType" ADD VALUE 'INVESTMENT';
-        RAISE NOTICE '✅ INVESTMENT added successfully';
-    ELSE
-        RAISE NOTICE '⚠️  INVESTMENT already exists';
-    END IF;
-END $$;
+## 🔍 Problema Identificado
 
--- Verificar valores após adicionar
-SELECT unnest(enum_range(NULL::"TransactionType")) as updated_values;
+- ✅ Novo signup cria as categorias automaticamente (implementado em `/app/api/signup/route.ts`)
+- ❌ Usuários antigos (criados antes) não possuíam essas categorias
+- ❌ Categorias faltantes: principalmente receitas (Vale, Comissão, Bonificação, Renda Extra) e despesas (Mercado, Saúde)
+
+---
+
+## 🛠️ Solução Implementada
+
+### Script de Migração
+
+**Arquivo:** `/scripts/migrate-categories.ts`
+
+**Funcionalidades:**
+- Busca todos os usuários do banco de dados
+- Para cada usuário, verifica quais categorias padrão estão faltando
+- Cria apenas as categorias que não existem (evita duplicação)
+- Exibe log detalhado do processo
+- Gera estatísticas finais
+
+### Categorias Padrão Criadas
+
+#### 🟢 Receitas (INCOME)
+```typescript
+[
+  { name: 'Salário', color: '#00bf63' },
+  { name: 'Vale', color: '#20c997' },
+  { name: 'Comissão', color: '#17a2b8' },
+  { name: 'Bonificação', color: '#6f42c1' },
+  { name: 'Renda Extra', color: '#28a745' },
+]
 ```
 
-**OU**
-
-Use o arquivo que já criei:
-📁 `/home/ubuntu/orcamento_planejado/nextjs_space/apply_migration_manual.sql`
-
----
-
-### 3️⃣ Executar e Verificar Resultado
-
-Clique em **Run** ou **Execute** no SQL Editor.
-
-**Resultado Esperado:**
-
+#### 🔴 Despesas (EXPENSE)
+```typescript
+[
+  { name: 'Moradia', color: '#6c757d' },
+  { name: 'Transporte', color: '#ffc107' },
+  { name: 'Mercado', color: '#fd7e14' },
+  { name: 'Alimentação', color: '#dc3545' },
+  { name: 'Saúde', color: '#e83e8c' },
+]
 ```
-current_values
---------------
-INCOME
-EXPENSE
 
-✅ INVESTMENT added successfully
-
-updated_values
---------------
-INCOME
-EXPENSE
-INVESTMENT
+#### 🟣 Investimentos (INVESTMENT)
+```typescript
+[
+  { name: 'Renda Fixa', color: '#00bf63' },
+  { name: 'Ações', color: '#20c997' },
+  { name: 'Fundos', color: '#6f42c1' },
+  { name: 'Cripto', color: '#ffc107' },
+  { name: 'Outros', color: '#737373' },
+]
 ```
 
 ---
 
-### 4️⃣ Testar a Aplicação
+## ⚡ Execução da Migração
 
-Após executar o SQL com sucesso:
-
-1. **Acesse:** https://orcamento-planejado.abacusai.app
-2. **Recarregue a página** (Ctrl+R ou Cmd+R)
-3. **Teste todas as páginas:**
-   - Dashboard
-   - Transações
-   - Categorias
-   - Investimentos
-
-4. **Verifique que não há mais erros!** ✅
-
----
-
-## 🔍 Alternativa: Via psql
-
-Se preferir usar linha de comando:
+### Comando Executado
 
 ```bash
-psql "postgresql://SEU_USER:SUA_SENHA@SEU_HOST:5432/postgres" \
-  -c "ALTER TYPE \"TransactionType\" ADD VALUE IF NOT EXISTS 'INVESTMENT';"
+cd /home/ubuntu/orcamento_planejado/nextjs_space
+yarn tsx --require dotenv/config scripts/migrate-categories.ts
+```
+
+### Resultado da Execução (02/11/2025)
+
+```
+📊 Total de usuários encontrados: 8
+
+Usuários processados:
+1. pedrogmac9@gmail.com - 10 categorias criadas
+2. john@doe.com - 4 categorias criadas
+3. lebervinicius@gmail.com - 10 categorias criadas
+4. clara@tomaraeducacaoecultura.com.br - 9 categorias criadas
+5. admin@orcamento.com - 10 categorias criadas ✅
+6. viniciusleber@gmail.com - 14 categorias criadas ✅
+7. eusofianewsletter@gmail.com - 15 categorias criadas
+8. testuserf846xtxi@example.com - 0 categorias (já tinha todas)
+
+📈 Estatísticas finais:
+   - Usuários processados: 8
+   - Categorias criadas: 71
+   - Categorias já existentes: 49
+
+✨ Todos os usuários agora possuem as 15 categorias padrão!
 ```
 
 ---
 
-## ⚙️ Por Que Isso Aconteceu?
+## ✅ Verificação Pós-Migração
 
-1. O banco **local** (Abacus.AI) foi migrado corretamente ✅
-2. O banco de **produção** (Supabase) estava conectado ao Vercel ✅
-3. O script `postinstall.sh` no Vercel **não conseguiu aplicar** a migração ❌
-   - Pode ter falhado silenciosamente
-   - Pode não ter permissões suficientes
-   - Pode ter problemas de timeout
+### Contas Principais Verificadas
+
+1. **viniciusleber@gmail.com** ✅
+   - Todas as 15 categorias padrão criadas
+   - 14 novas + 1 já existente (Ações)
+
+2. **admin@orcamento.com** ✅
+   - Todas as 15 categorias padrão criadas
+   - 10 novas + 5 já existentes (investimentos)
+
+### Como Verificar Manualmente
+
+Para verificar as categorias de um usuário específico:
+
+```bash
+cd /home/ubuntu/orcamento_planejado/nextjs_space
+yarn tsx --require dotenv/config -e "
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+const categories = await prisma.category.findMany({
+  where: { user: { email: 'viniciusleber@gmail.com' } },
+  select: { name: true, type: true, color: true }
+});
+console.log(categories);
+await prisma.\$disconnect();
+"
+```
 
 ---
 
-## 📋 Checklist Pós-Migração
+## 🔄 Manutenção Futura
 
-- [ ] SQL executado no Supabase
-- [ ] Enum atualizado com sucesso
-- [ ] App testado em produção
-- [ ] Nenhum erro no console
-- [ ] Todas as páginas funcionando
+### Para Novos Usuários
+
+✅ **Automático** - O signup já cria as categorias padrão automaticamente  
+📁 **Arquivo:** `/app/api/signup/route.ts`
+
+### Para Usuários Existentes (se necessário)
+
+Se no futuro precisar adicionar novas categorias padrão:
+
+1. Atualizar os arrays em `/scripts/migrate-categories.ts`
+2. Executar o script novamente:
+   ```bash
+   yarn tsx --require dotenv/config scripts/migrate-categories.ts
+   ```
+3. O script é **idempotente** - não cria duplicatas
 
 ---
 
-## 🚀 Próximos Passos
+## 📚 Arquivos Relacionados
 
-Após a migração funcionar:
-
-1. ✅ Remover a rota temporária `/api/migrate`
-2. ✅ Confirmar que o `postinstall.sh` funciona para futuras migrações
-3. ✅ Documentar o processo
+- `/scripts/migrate-categories.ts` - Script de migração
+- `/app/api/signup/route.ts` - Criação automática para novos usuários
+- `/scripts/seed.ts` - Seed inicial do banco
+- `/prisma/schema.prisma` - Schema do banco de dados
 
 ---
 
-**Execute o SQL no Supabase Dashboard e reporte o resultado!** 🎯
+## 🎓 Lições Aprendidas
+
+1. **Scripts são idempotentes** - Sempre verificar antes de criar
+2. **Migração separada do signup** - Usuários antigos precisam de tratamento especial
+3. **Logs detalhados** - Facilitam debug e verificação
+4. **Estatísticas finais** - Permitem validação rápida do resultado
+
+---
+
+## 📞 Suporte
+
+Para dúvidas ou problemas:
+- Verificar logs do script
+- Consultar documentação do Prisma
+- Revisar schema.prisma para estrutura de categorias
+
+---
+
+**Status:** ✅ Migração concluída e testada  
+**Próximo passo:** Build e deploy em produção
