@@ -47,7 +47,8 @@ export async function POST(request: NextRequest) {
     // Criar categorias padrão para o novo usuário
     const incomeCategories = [
       { name: 'Salário', color: '#00bf63' },
-      { name: 'Freelance', color: '#20c997' },
+      { name: 'Vale', color: '#20c997' },
+      { name: 'Comissão', color: '#17a2b8' },
       { name: 'Bonificação', color: '#6f42c1' },
       { name: 'Renda Extra', color: '#28a745' },
     ]
